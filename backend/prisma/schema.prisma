@@ -1,0 +1,148 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  fullName      String
+  avatar        String?
+  avatarPublicId String?
+  blogs         Blog[]
+  refreshToken  String?
+  
+  roleId        String
+  role          Role      @relation(fields: [roleId], references: [id])
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Role {
+  id          String       @id @default(uuid())
+  name        String       @unique // e.g., "ADMIN", "CONTENT_CREATOR"
+  description String?
+  users       User[]
+  permissions Permission[] @relation("RoleToPermission")
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  name        String   @unique // e.g., "blog:create", "user:delete", "system:config"
+  description String?
+  roles       Role[]   @relation("RoleToPermission")
+}
+
+model Language {
+  id            String    @id @default(uuid())
+  code          String    @unique // en, vi, etc.
+  name          String
+  fontFamily    String?   @default("'Inter', sans-serif")
+  fontUrl       String?   // External font URL if needed
+  direction     String    @default("ltr") // ltr or rtl
+  isDefault     Boolean   @default(false)
+  
+  uiContents    UIContent[]
+  projectTrans  ProjectTranslation[]
+  experienceTrans ExperienceTranslation[]
+  blogTrans     BlogTranslation[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model UIContent {
+  id          String   @id @default(uuid())
+  key         String   // e.g., "nav.about", "hero.title"
+  value       String   @db.Text
+  languageId  String
+  language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  
+  @@unique([key, languageId])
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  image       String?
+  imagePublicId  String?
+  link        String?
+  techStack   String[] // Array of tech names
+  order       Int      @default(0)
+  translations ProjectTranslation[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ProjectTranslation {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  languageId  String
+  language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, languageId])
+}
+
+model Experience {
+  id          String   @id @default(uuid())
+  period      String   // e.g., "2023 - Present"
+  order       Int      @default(0)
+  translations ExperienceTranslation[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ExperienceTranslation {
+  id           String     @id @default(uuid())
+  company      String
+  role         String
+  description  String     @db.Text
+  experienceId String
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  languageId   String
+  language     Language   @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  @@unique([experienceId, languageId])
+}
+
+model Tag {
+  id    String @id @default(uuid())
+  name  String @unique
+  blogs Blog[]
+}
+
+model BlogTranslation {
+  id          String   @id @default(uuid())
+  title       String
+  content     String   @db.Text
+  blogId      String
+  blog        Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  languageId  String
+  language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  @@unique([blogId, languageId])
+}
+
+model Blog {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  thumbnail   String?
+  thumbnailPublicId String?
+  published   Boolean  @default(false)
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  tags        Tag[]
+  translations BlogTranslation[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

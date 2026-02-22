@@ -1,0 +1,42 @@
+{
+  "common": {
+    "available": "Sẵn sàng cho các cơ hội mới",
+    "resume": "Tải CV",
+    "epic": "Hãy cùng tạo nên điều kỳ diệu.",
+    "footer": "Thiết kế bởi Antigravity"
+  },
+  "nav": {
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "projects": "Dự án",
+    "experience": "Kinh nghiệm",
+    "blog": "Bài viết"
+  },
+  "hero": {
+    "title": "Kiến Tạo Sự Hoàn Hảo Số",
+    "subtitle": "Tôi là một Kỹ sư Full-stack tận tâm xây dựng các ứng dụng hiệu suất cao, dễ tiếp cận và có giao diện ấn tượng dựa trên Kiến trúc Sạch (Clean Architecture)."
+  },
+  "about": {
+    "title": "Đam mê giải quyết những vấn đề phức tạp.",
+    "p1": "Hành trình của tôi bắt đầu từ sự tò mò về cách mọi thứ vận hành. Ngày nay, tôi xây dựng các hệ thống không chỉ hoạt động tốt mà còn có cấu trúc vững chắc.",
+    "p2": "Tôi chuyên về Clean Architecture, đảm bảo mã nguồn dễ bảo trì, dễ kiểm thử và bền vững. Dù là backend xử lý song song cao hay frontend pixel-perfect, tôi luôn hướng tới sự xuất sắc trong từng dòng code.",
+    "frontend": "Giao diện (Frontend)",
+    "backend": "Hệ thống (Backend)",
+    "caption": "Đó là tôi tại AI Summit"
+  },
+  "projects": {
+    "title": "Dự Án Tiêu Biểu",
+    "subtitle": "Tập hợp các dự án tôi đã thực hiện để thách thức các giới hạn của phát triển web hiện đại.",
+    "view_all": "Xem tất cả kho lưu trữ",
+    "p1_title": "Bảng điều khiển Tầm nhìn",
+    "p1_desc": "Nền tảng trực quan hóa dữ liệu thời gian thực được xây dựng bằng Next.js và D3.js.",
+    "p2_title": "SecureOps",
+    "p2_desc": "Giám sát bảo mật tự động cho hạ tầng đám mây phân tán.",
+    "p3_title": "Giao diện Thương mại",
+    "p3_desc": "Mẫu thương mại điện tử headless tập trung vào các chỉ số web cốt lõi."
+  },
+  "blog": {
+    "title": "Từ Blog của tôi",
+    "subtitle": "Chia sẻ suy nghĩ về kiến trúc, bảo mật và tương lai của phát triển web."
+  }
+}

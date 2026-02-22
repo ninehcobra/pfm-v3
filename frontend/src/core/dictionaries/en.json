@@ -1,0 +1,42 @@
+{
+  "common": {
+    "available": "Available for new opportunities",
+    "resume": "Download Resume",
+    "epic": "Let's build something epic.",
+    "footer": "Crafted by Antigravity"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "projects": "Projects",
+    "experience": "Experience",
+    "blog": "Blog"
+  },
+  "hero": {
+    "title": "Crafting Digital Excellence",
+    "subtitle": "I'm a Full-stack Engineer dedicated to building high-performance, accessible, and visually stunning applications using Clean Architecture."
+  },
+  "about": {
+    "title": "Passionate about solving complex problems.",
+    "p1": "My journey began with a curiosity about how things work under the hood. Today, I build systems that are not only functional but also architecturally sound.",
+    "p2": "I specialize in Clean Architecture, ensuring that my codebases are maintainable, testable, and future-proof. Whether it's a high-concurrency backend or a pixel-perfect frontend, I strive for excellence in every line of code.",
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "caption": "That's me at the AI Summit"
+  },
+  "projects": {
+    "title": "Selected Work",
+    "subtitle": "A collection of projects where I pushed the boundaries of modern web development.",
+    "view_all": "View All Archive",
+    "p1_title": "Vision Dashboard",
+    "p1_desc": "Real-time data visualization platform built with Next.js and D3.js.",
+    "p2_title": "SecureOps",
+    "p2_desc": "Automated security monitoring for distributed cloud infrastructure.",
+    "p3_title": "Commerce UI",
+    "p3_desc": "Headless e-commerce template with focus on core web vitals."
+  },
+  "blog": {
+    "title": "From the Blog",
+    "subtitle": "Sharing my thoughts on architecture, security, and the future of web development."
+  }
+}
