@@ -7,7 +7,7 @@ export interface LogEntry {
   source: string;
   action: string;
   message: string;
-  metadata?: any;
+  metadata?: Prisma.InputJsonValue;
   userId?: string;
   path?: string;
   method?: string;

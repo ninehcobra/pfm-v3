@@ -8,9 +8,17 @@ export interface IBlogRepository {
   update(id: string, data: Partial<Blog>): Promise<Blog>;
   delete(id: string): Promise<void>;
   incrementView(slug: string): Promise<void>;
-  addComment(blogId: string, authorId: string, content: string): Promise<any>;
+  addComment(
+    blogId: string,
+    authorId: string,
+    content: string,
+  ): Promise<unknown>;
   deleteComment(commentId: string, userId: string): Promise<void>;
-  toggleReaction(blogId: string, userId: string, type: string): Promise<any>;
+  toggleReaction(
+    blogId: string,
+    userId: string,
+    type: string,
+  ): Promise<unknown>;
 }
 
 export const BLOG_REPOSITORY = 'IBlogRepository';

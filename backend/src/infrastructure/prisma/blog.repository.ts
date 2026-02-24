@@ -2,7 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { IBlogRepository } from 'src/domain/repositories/blog.repository.interface';
 import { Blog } from 'src/domain/entities/blog.entity';
-import { ReactionType } from '@prisma/client';
+import { ReactionType, Prisma } from '@prisma/client';
+
+type BlogWithTranslations = Prisma.BlogGetPayload<{
+  include: {
+    translations: true;
+    author: true;
+    comments: { include: { author: true } };
+    reactions: true;
+  };
+}>;
 
 @Injectable()
 export class BlogRepository implements IBlogRepository {
@@ -15,27 +24,29 @@ export class BlogRepository implements IBlogRepository {
     });
     if (!language) throw new Error(`Language ${locale} not found`);
 
-    return this.prisma.blog
-      .create({
-        data: {
-          slug: data.slug,
-          thumbnail: data.thumbnail,
-          thumbnailPublicId: data.thumbnailPublicId,
-          published: data.published ?? false,
-          authorId: data.authorId,
-          translations: {
-            create: {
-              title: data.title,
-              content: data.content,
-              languageId: language.id,
-            },
+    const result = await this.prisma.blog.create({
+      data: {
+        slug: data.slug || '',
+        thumbnail: data.thumbnail,
+        thumbnailPublicId: data.thumbnailPublicId,
+        published: data.published ?? false,
+        authorId: data.authorId || '',
+        translations: {
+          create: {
+            title: data.title || '',
+            content: data.content || '',
+            languageId: language.id,
           },
         },
-        include: {
-          translations: { where: { languageId: language.id } },
-        },
-      })
-      .then((res) => this.mapToEntity(res)) as unknown as Blog;
+      },
+      include: {
+        translations: { where: { languageId: language.id } },
+        author: true,
+        comments: { include: { author: true } },
+        reactions: true,
+      },
+    });
+    return this.mapToEntity(result as unknown as BlogWithTranslations);
   }
 
   async findAll(publishedOnly?: boolean): Promise<Blog[]> {
@@ -43,10 +54,14 @@ export class BlogRepository implements IBlogRepository {
       where: publishedOnly ? { published: true } : {},
       include: {
         author: true,
-        translations: true, // Get all for now, or we could filter by a default locale
+        translations: true,
+        comments: { include: { author: true } },
+        reactions: true,
       },
     });
-    return blogs.map((b) => this.mapToEntity(b)) as unknown as Blog[];
+    return (blogs as unknown as BlogWithTranslations[]).map((b) =>
+      this.mapToEntity(b),
+    );
   }
 
   async findById(id: string): Promise<Blog | null> {
@@ -62,7 +77,9 @@ export class BlogRepository implements IBlogRepository {
         reactions: true,
       },
     });
-    return res ? this.mapToEntity(res) : null;
+    return res
+      ? this.mapToEntity(res as unknown as BlogWithTranslations)
+      : null;
   }
 
   async findBySlug(slug: string): Promise<Blog | null> {
@@ -78,14 +95,24 @@ export class BlogRepository implements IBlogRepository {
         reactions: true,
       },
     });
-    return res ? this.mapToEntity(res) : null;
+    return res
+      ? this.mapToEntity(res as unknown as BlogWithTranslations)
+      : null;
   }
 
   async update(
     id: string,
     data: Partial<Blog> & { locale?: string },
   ): Promise<Blog> {
-    const { title, content, locale, ...rest } = data;
+    const {
+      title,
+      content,
+      locale,
+      published,
+      thumbnail,
+      thumbnailPublicId,
+      slug,
+    } = data;
 
     if (title || content) {
       const targetLocale = locale || 'en';
@@ -103,8 +130,8 @@ export class BlogRepository implements IBlogRepository {
         create: {
           blogId: id,
           languageId: language.id,
-          title: title,
-          content: content,
+          title: title || '',
+          content: content || '',
         },
       });
     }
@@ -112,13 +139,19 @@ export class BlogRepository implements IBlogRepository {
     const res = await this.prisma.blog.update({
       where: { id },
       data: {
-        ...rest,
-        thumbnail: data.thumbnail,
-        thumbnailPublicId: data.thumbnailPublicId,
-      } as any,
-      include: { translations: true },
+        published,
+        thumbnail,
+        thumbnailPublicId,
+        slug,
+      },
+      include: {
+        translations: true,
+        author: true,
+        comments: { include: { author: true } },
+        reactions: true,
+      },
     });
-    return this.mapToEntity(res) as unknown as Blog;
+    return this.mapToEntity(res as unknown as BlogWithTranslations);
   }
 
   async delete(id: string): Promise<void> {
@@ -137,7 +170,7 @@ export class BlogRepository implements IBlogRepository {
     authorId: string,
     content: string,
   ): Promise<any> {
-    return this.prisma.comment.create({
+    return await this.prisma.comment.create({
       data: {
         content,
         authorId,
@@ -164,44 +197,49 @@ export class BlogRepository implements IBlogRepository {
   async toggleReaction(
     blogId: string,
     userId: string,
-    type: ReactionType, // Changed 'any' to 'ReactionType'
+    type: string,
   ): Promise<any> {
+    const reactionType = type as ReactionType;
     const existing = await this.prisma.reaction.findUnique({
       where: { userId_blogId: { userId, blogId } },
     });
 
     if (existing) {
-      if (existing.type === type) {
-        return this.prisma.reaction.delete({
+      if (existing.type === reactionType) {
+        return await this.prisma.reaction.delete({
           where: { id: existing.id },
         });
       } else {
-        return this.prisma.reaction.update({
+        return await this.prisma.reaction.update({
           where: { id: existing.id },
-          data: { type },
+          data: { type: reactionType },
         });
       }
     }
 
-    return this.prisma.reaction.create({
+    return await this.prisma.reaction.create({
       data: {
-        type,
+        type: reactionType,
         userId,
         blogId,
       },
     });
   }
 
-  private mapToEntity(prismaBlog: any): Blog {
-    const { translations, ...rest } = prismaBlog;
+  private mapToEntity(prismaBlog: unknown): Blog {
+    const blog = prismaBlog as Record<string, unknown>;
+    const translations = (blog.translations as any[]) || [];
+    const comments = (blog.comments as any[]) || [];
+    const reactions = (blog.reactions as any[]) || [];
+
     return {
-      ...rest,
+      ...(blog as any),
       translations,
-      title: translations?.[0]?.title,
-      content: translations?.[0]?.content,
-      views: prismaBlog.views || 0,
-      comments: prismaBlog.comments || [],
-      reactions: prismaBlog.reactions || [],
-    } as Blog;
+      title: (translations[0] as Record<string, string>)?.title,
+      content: (translations[0] as Record<string, string>)?.content,
+      views: (blog.views as number) || 0,
+      comments,
+      reactions,
+    } as unknown as Blog;
   }
 }

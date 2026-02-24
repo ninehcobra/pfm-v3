@@ -18,6 +18,11 @@ import {
   MEDIA_SERVICE,
 } from '../../application/services/media.service';
 
+interface UploadedFile {
+  buffer: Buffer;
+  mimetype: string;
+}
+
 @Controller('upload')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 export class UploadController {
@@ -26,7 +31,7 @@ export class UploadController {
   @Post('image')
   @Permissions('system:config')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadImage(@UploadedFile() file: any) {
+  async uploadImage(@UploadedFile() file: UploadedFile) {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
@@ -36,7 +41,7 @@ export class UploadController {
       throw new BadRequestException('Invalid file type');
     }
 
-    return this.mediaService.uploadImage(file);
+    return await this.mediaService.uploadImage(file);
   }
 
   @Delete('image/:publicId')

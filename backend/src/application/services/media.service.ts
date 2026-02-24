@@ -1,6 +1,6 @@
 export interface IMediaService {
   uploadImage(
-    file: any,
+    file: { buffer: Buffer; mimetype: string },
     folder?: string,
   ): Promise<{ url: string; publicId: string }>;
   deleteImage(publicId: string): Promise<void>;

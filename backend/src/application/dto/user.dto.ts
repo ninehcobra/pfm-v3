@@ -8,7 +8,7 @@ export class UserDto {
   roleId: string;
   roleName?: string;
 
-  constructor(user: any) {
+  constructor(user: User & { role?: { name: string } }) {
     this.id = user.id;
     this.email = user.email;
     this.fullName = user.fullName;

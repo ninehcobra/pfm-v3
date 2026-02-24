@@ -8,7 +8,7 @@ export class UserRepository implements IUserRepository {
   constructor(private prisma: PrismaService) {}
 
   async create(data: Partial<User>): Promise<User> {
-    return this.prisma.user.create({
+    return (await this.prisma.user.create({
       data: {
         email: data.email,
         password: data.password,
@@ -17,36 +17,36 @@ export class UserRepository implements IUserRepository {
         avatar: data.avatar,
         avatarPublicId: data.avatarPublicId,
       },
-    }) as unknown as User;
+    })) as unknown as User;
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
+    return (await this.prisma.user.findUnique({
       where: { email },
       include: { role: true },
-    }) as unknown as User | null;
+    })) as unknown as User | null;
   }
 
   async findById(id: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
+    return (await this.prisma.user.findUnique({
       where: { id },
       include: { role: true },
-    }) as unknown as User | null;
+    })) as unknown as User | null;
   }
 
   async update(id: string, data: Partial<User>): Promise<User> {
-    return this.prisma.user.update({
+    return (await this.prisma.user.update({
       where: { id },
       data,
       include: { role: true },
-    }) as unknown as User;
+    })) as unknown as User;
   }
 
   async findByRefreshToken(token: string): Promise<User | null> {
-    return this.prisma.user.findFirst({
+    return (await this.prisma.user.findFirst({
       where: { refreshToken: token },
       include: { role: true },
-    }) as unknown as User | null;
+    })) as unknown as User | null;
   }
 
   async delete(id: string): Promise<void> {

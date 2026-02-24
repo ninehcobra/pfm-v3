@@ -18,6 +18,13 @@ import type {
   UpdateBlogDto,
 } from 'src/application/dto/blog.dto';
 
+interface RequestWithUser {
+  user: {
+    id: string;
+    email: string;
+  };
+}
+
 @Controller('blogs')
 export class BlogController {
   constructor(private blogService: BlogService) {}
@@ -38,15 +45,19 @@ export class BlogController {
   async addComment(
     @Param('id') id: string,
     @Body() data: { content: string },
-    @Req() req: any,
+    @Req() req: RequestWithUser,
   ) {
     return this.blogService.addComment(id, req.user.id, data.content);
   }
 
   @Delete('comments/:commentId')
   @UseGuards(JwtAuthGuard)
-  async removeComment(@Param('commentId') commentId: string, @Req() req: any) {
-    return this.blogService.deleteComment(commentId, req.user.id);
+  async removeComment(
+    @Param('commentId') commentId: string,
+    @Req() req: RequestWithUser,
+  ) {
+    await this.blogService.deleteComment(commentId, req.user.id);
+    return { success: true };
   }
 
   @Post(':id/reactions')
@@ -54,7 +65,7 @@ export class BlogController {
   async toggleReaction(
     @Param('id') id: string,
     @Body() data: { type: string },
-    @Req() req: any,
+    @Req() req: RequestWithUser,
   ) {
     return this.blogService.toggleReaction(id, req.user.id, data.type);
   }

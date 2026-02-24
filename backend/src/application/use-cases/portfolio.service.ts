@@ -1,28 +1,29 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
+import { Language } from '@prisma/client';
 
 @Injectable()
 export class PortfolioService {
   constructor(private prisma: PrismaService) {}
 
   async getPortfolio(locale: string) {
-    const language = await this.prisma.language.findUnique({
+    const language = (await this.prisma.language.findUnique({
       where: { code: locale },
-    });
+    })) as Language | null;
 
     if (!language) {
       // Fallback to default if locale not found
-      const defaultLang = await this.prisma.language.findFirst({
+      const defaultLang = (await this.prisma.language.findFirst({
         where: { isDefault: true },
-      });
+      })) as Language | null;
       if (!defaultLang) throw new NotFoundException('Language not found');
-      return this.getLocalizedContent(defaultLang);
+      return await this.getLocalizedContent(defaultLang);
     }
 
-    return this.getLocalizedContent(language);
+    return await this.getLocalizedContent(language);
   }
 
-  private async getLocalizedContent(language: any) {
+  private async getLocalizedContent(language: Language) {
     const [uiContent, projects, experiences] = await Promise.all([
       this.prisma.uIContent.findMany({
         where: { languageId: language.id },
@@ -46,7 +47,7 @@ export class PortfolioService {
     ]);
 
     // Format UI Content into a nested object like the dictionary
-    const content = {};
+    const content: Record<string, any> = {};
     uiContent.forEach((item) => {
       const keys = item.key.split('.');
       let current = content;
@@ -55,8 +56,8 @@ export class PortfolioService {
         if (i === keys.length - 1) {
           current[key] = item.value;
         } else {
-          current[key] = current[key] || {};
-          current = current[key];
+          current[key] = (current[key] as Record<string, any>) || {};
+          current = current[key] as Record<string, any>;
         }
       }
     });
@@ -74,21 +75,21 @@ export class PortfolioService {
         image: p.image,
         link: p.link,
         techStack: p.techStack,
-        title: p.translations[0]?.title || '',
-        description: p.translations[0]?.description || '',
+        title: (p.translations[0] as any)?.title || '',
+        description: (p.translations[0] as any)?.description || '',
       })),
       experience: experiences.map((e) => ({
         id: e.id,
         period: e.period,
-        company: e.translations[0]?.company || '',
-        role: e.translations[0]?.role || '',
-        description: e.translations[0]?.description || '',
+        company: (e.translations[0] as any)?.company || '',
+        role: (e.translations[0] as any)?.role || '',
+        description: (e.translations[0] as any)?.description || '',
       })),
     };
   }
 
   async getAvailableLanguages() {
-    return this.prisma.language.findMany({
+    return await this.prisma.language.findMany({
       select: {
         code: true,
         name: true,

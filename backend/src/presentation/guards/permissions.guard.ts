@@ -21,13 +21,13 @@ export class PermissionsGuard implements CanActivate {
     );
     if (!requiredPermissions) return true;
 
-    const request = context.switchToHttp().getRequest();
-    const user = request.user;
-    if (!user) return false;
+    const request = context.switchToHttp().getRequest<Record<string, any>>();
+    const user = request.user as { id: string } | undefined;
+    if (!user || !user.id) return false;
 
     // Fetch user role and permissions from DB
     const dbUser = await this.prisma.user.findUnique({
-      where: { id: user.sub },
+      where: { id: user.id },
       include: {
         role: {
           include: {

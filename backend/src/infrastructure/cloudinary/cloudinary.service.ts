@@ -13,7 +13,7 @@ export class CloudinaryService implements IMediaService {
   }
 
   async uploadImage(
-    file: any,
+    file: { buffer: Buffer; mimetype: string },
     folder: string = 'antigravity',
   ): Promise<{ url: string; publicId: string }> {
     return new Promise((resolve, reject) => {
@@ -23,7 +23,7 @@ export class CloudinaryService implements IMediaService {
           resource_type: 'auto',
         },
         (error, result) => {
-          if (error) return reject(error);
+          if (error) return reject(new Error(error.message));
           if (!result) return reject(new Error('Cloudinary upload failed'));
           resolve({
             url: result.secure_url,

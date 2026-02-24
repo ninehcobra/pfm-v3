@@ -61,9 +61,9 @@ export class DashboardService {
       this.prisma.comment.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
-        include: { 
+        include: {
           author: { select: { fullName: true, avatar: true } },
-          blog: { include: { translations: true } }
+          blog: { include: { translations: true } },
         },
       }),
     ]);
@@ -80,25 +80,29 @@ export class DashboardService {
         totalSubscribers,
         visits24h,
         errors24h,
-        totalBlogViews: blogViews._sum.views || 0,
+        totalBlogViews: blogViews._sum?.views || 0,
       },
       recentActivity,
-      topBlogs: topBlogs.map(b => ({
+      topBlogs: topBlogs.map((b) => ({
         id: b.id,
         title: b.translations?.[0]?.title || 'Untitled',
         views: b.views,
         slug: b.slug,
       })),
-      recentComments: recentComments.map(c => ({
+      recentComments: recentComments.map((c) => ({
         id: c.id,
         content: c.content,
-        author: c.author.fullName,
-        blogTitle: c.blog.translations?.[0]?.title || 'Untitled',
+        author: c.author?.fullName || 'Anonymous',
+        blogTitle: c.blog?.translations?.[0]?.title || 'Untitled',
         createdAt: c.createdAt,
       })),
       systemHealth: [
         { name: 'API Server', status: 'Healthy', latency: '24ms' },
-        { name: 'PostgreSQL Database', status: dbHealthy ? 'Connected' : 'Error', latency: '5ms' },
+        {
+          name: 'PostgreSQL Database',
+          status: dbHealthy ? 'Connected' : 'Error',
+          latency: '5ms',
+        },
         { name: 'Frontend Edge', status: 'Active', latency: '15ms' },
       ],
     };
@@ -108,7 +112,7 @@ export class DashboardService {
     try {
       await this.prisma.$queryRaw`SELECT 1`;
       return true;
-    } catch (e) {
+    } catch {
       return false;
     }
   }

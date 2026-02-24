@@ -13,14 +13,11 @@ export class BlogService {
     @Inject(MEDIA_SERVICE) private mediaService: IMediaService,
   ) {}
 
-  async getAllBlogs(locale: string = 'en'): Promise<Blog[]> {
+  async getAllBlogs(): Promise<Blog[]> {
     return this.blogRepository.findAll(true);
   }
 
-  async getBlogBySlug(
-    slug: string,
-    locale: string = 'en',
-  ): Promise<Blog | null> {
+  async getBlogBySlug(slug: string): Promise<Blog | null> {
     return this.blogRepository.findBySlug(slug);
   }
 
@@ -54,7 +51,11 @@ export class BlogService {
     return this.blogRepository.incrementView(slug);
   }
 
-  async addComment(blogId: string, authorId: string, content: string): Promise<any> {
+  async addComment(
+    blogId: string,
+    authorId: string,
+    content: string,
+  ): Promise<unknown> {
     return this.blogRepository.addComment(blogId, authorId, content);
   }
 
@@ -62,7 +63,11 @@ export class BlogService {
     return this.blogRepository.deleteComment(commentId, userId);
   }
 
-  async toggleReaction(blogId: string, userId: string, type: string): Promise<any> {
+  async toggleReaction(
+    blogId: string,
+    userId: string,
+    type: string,
+  ): Promise<unknown> {
     return this.blogRepository.toggleReaction(blogId, userId, type);
   }
 }

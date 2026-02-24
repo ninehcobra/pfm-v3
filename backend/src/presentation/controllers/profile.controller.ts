@@ -19,6 +19,13 @@ import {
 } from '../../application/services/media.service';
 import { UserDto } from '../../application/dto/user.dto';
 
+interface RequestWithUser {
+  user: {
+    id: string;
+    email: string;
+  };
+}
+
 @Controller('profile')
 @UseGuards(JwtAuthGuard)
 export class ProfileController {
@@ -28,15 +35,23 @@ export class ProfileController {
   ) {}
 
   @Get()
-  async getProfile(@Req() req: any) {
-    const user = await this.userRepository.findById(req.user.sub);
+  async getProfile(@Req() req: RequestWithUser) {
+    const user = await this.userRepository.findById(req.user.id);
     if (!user) throw new NotFoundException('User not found');
     return new UserDto(user);
   }
 
   @Put()
-  async updateProfile(@Req() req: any, @Body() data: any) {
-    const userId = req.user.sub;
+  async updateProfile(
+    @Req() req: RequestWithUser,
+    @Body()
+    data: {
+      fullName: string;
+      avatar?: string;
+      avatarPublicId?: string;
+    },
+  ) {
+    const userId = req.user.id;
     const user = await this.userRepository.findById(userId);
     if (!user) throw new NotFoundException('User not found');
 

@@ -27,15 +27,15 @@ export class LoggingInterceptor implements NestInterceptor {
     const ctx = context.switchToHttp();
     const request = ctx.getRequest<AuthenticatedRequest>();
     const { method, url, ip, headers } = request;
-    const userAgent = (headers['user-agent'] as string) || '';
+    const userAgent = headers['user-agent'] || '';
     const startTime = Date.now();
 
     // Sensitive fields to mask in metadata
     const maskFields = ['password', 'refreshToken', 'token', 'authorization'];
 
-    const maskData = (data: Record<string, unknown> | any): any => {
+    const maskData = (data: unknown): unknown => {
       if (!data || typeof data !== 'object') return data;
-      const masked = { ...data } as Record<string, unknown>;
+      const masked = { ...(data as Record<string, unknown>) };
       maskFields.forEach((field) => {
         if (field in masked) {
           masked[field] = '********';
@@ -63,7 +63,7 @@ export class LoggingInterceptor implements NestInterceptor {
             body: bodyMetadata,
             query: queryMetadata,
             params: paramsMetadata,
-          },
+          } as any,
           userId: request.user?.id,
           path: url,
           method,
@@ -81,16 +81,25 @@ export class LoggingInterceptor implements NestInterceptor {
             ? error.getStatus()
             : HttpStatus.INTERNAL_SERVER_ERROR;
 
-        const errorMessage = error instanceof Error 
-          ? error.message 
-          : (typeof error === 'object' && error !== null && 'message' in error) 
-            ? String((error as Record<string, unknown>).message) 
-            : 'Internal server error';
+        let errorMessage = 'Internal server error';
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error
+        ) {
+          const msg = (error as Record<string, unknown>).message;
+          errorMessage = typeof msg === 'string' ? msg : 'Error occurred';
+        }
 
         const bodyMetadata = maskData(request.body);
         const queryMetadata = request.query as Record<string, unknown>;
         const paramsMetadata = request.params as Record<string, unknown>;
-        const errorMetadata = JSON.parse(JSON.stringify(error)) as Record<string, unknown>;
+        const errorMetadata = JSON.parse(JSON.stringify(error)) as Record<
+          string,
+          unknown
+        >;
 
         void this.logger.logToDb({
           level: SystemLogLevel.ERROR,
@@ -103,7 +112,7 @@ export class LoggingInterceptor implements NestInterceptor {
             params: paramsMetadata,
             stack: error instanceof Error ? error.stack : undefined,
             error: errorMetadata,
-          },
+          } as any,
           userId: request.user?.id,
           path: url,
           method,
