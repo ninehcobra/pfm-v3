@@ -7,15 +7,15 @@ export class PortfolioService {
   constructor(private prisma: PrismaService) {}
 
   async getPortfolio(locale: string) {
-    const language = (await this.prisma.language.findUnique({
+    const language = await this.prisma.language.findUnique({
       where: { code: locale },
-    })) as Language | null;
+    });
 
     if (!language) {
       // Fallback to default if locale not found
-      const defaultLang = (await this.prisma.language.findFirst({
+      const defaultLang = await this.prisma.language.findFirst({
         where: { isDefault: true },
-      })) as Language | null;
+      });
       if (!defaultLang) throw new NotFoundException('Language not found');
       return await this.getLocalizedContent(defaultLang);
     }
@@ -70,21 +70,27 @@ export class PortfolioService {
         direction: language.direction,
       },
       content,
-      projects: projects.map((p) => ({
-        id: p.id,
-        image: p.image,
-        link: p.link,
-        techStack: p.techStack,
-        title: (p.translations[0] as any)?.title || '',
-        description: (p.translations[0] as any)?.description || '',
-      })),
-      experience: experiences.map((e) => ({
-        id: e.id,
-        period: e.period,
-        company: (e.translations[0] as any)?.company || '',
-        role: (e.translations[0] as any)?.role || '',
-        description: (e.translations[0] as any)?.description || '',
-      })),
+      projects: projects.map((p) => {
+        const trans = (p.translations[0] as Record<string, any>) || {};
+        return {
+          id: p.id,
+          image: p.image,
+          link: p.link,
+          techStack: p.techStack,
+          title: (trans.title as string) || '',
+          description: (trans.description as string) || '',
+        };
+      }),
+      experience: experiences.map((e) => {
+        const trans = (e.translations[0] as Record<string, any>) || {};
+        return {
+          id: e.id,
+          period: e.period,
+          company: (trans.company as string) || '',
+          role: (trans.role as string) || '',
+          description: (trans.description as string) || '',
+        };
+      }),
     };
   }
 

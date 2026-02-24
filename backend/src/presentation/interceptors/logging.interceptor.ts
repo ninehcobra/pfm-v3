@@ -59,6 +59,7 @@ export class LoggingInterceptor implements NestInterceptor {
           source: 'API',
           action: `${method} ${url}`,
           message: `Request processed successfully`,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           metadata: {
             body: bodyMetadata,
             query: queryMetadata,
@@ -106,6 +107,7 @@ export class LoggingInterceptor implements NestInterceptor {
           source: 'API',
           action: `${method} ${url}`,
           message: errorMessage,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           metadata: {
             body: bodyMetadata,
             query: queryMetadata,
