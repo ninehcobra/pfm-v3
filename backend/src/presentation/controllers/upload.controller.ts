@@ -1,26 +1,27 @@
-import { 
-  Controller, 
-  Post, 
+import {
+  Controller,
+  Post,
   Delete,
   Param,
-  UseInterceptors, 
-  UploadedFile, 
-  Inject, 
+  UseInterceptors,
+  UploadedFile,
+  Inject,
   UseGuards,
-  BadRequestException
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { PermissionsGuard } from '../guards/permissions.guard';
 import { Permissions } from '../guards/permissions.decorator';
-import { IMediaService, MEDIA_SERVICE } from '../../application/services/media.service';
+import {
+  IMediaService,
+  MEDIA_SERVICE,
+} from '../../application/services/media.service';
 
 @Controller('upload')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 export class UploadController {
-  constructor(
-    @Inject(MEDIA_SERVICE) private mediaService: IMediaService
-  ) {}
+  constructor(@Inject(MEDIA_SERVICE) private mediaService: IMediaService) {}
 
   @Post('image')
   @Permissions('system:config')
@@ -29,7 +30,7 @@ export class UploadController {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
-    
+
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     if (!allowedTypes.includes(file.mimetype)) {
       throw new BadRequestException('Invalid file type');

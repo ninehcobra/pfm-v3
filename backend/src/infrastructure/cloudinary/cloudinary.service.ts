@@ -12,7 +12,10 @@ export class CloudinaryService implements IMediaService {
     });
   }
 
-  async uploadImage(file: any, folder: string = 'antigravity'): Promise<{ url: string; publicId: string }> {
+  async uploadImage(
+    file: any,
+    folder: string = 'antigravity',
+  ): Promise<{ url: string; publicId: string }> {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
@@ -26,7 +29,7 @@ export class CloudinaryService implements IMediaService {
             url: result.secure_url,
             publicId: result.public_id,
           });
-        }
+        },
       );
 
       // Multer file buffer

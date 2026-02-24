@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 
@@ -10,7 +15,10 @@ export class PermissionsGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredPermissions = this.reflector.get<string[]>('permissions', context.getHandler());
+    const requiredPermissions = this.reflector.get<string[]>(
+      'permissions',
+      context.getHandler(),
+    );
     if (!requiredPermissions) return true;
 
     const request = context.switchToHttp().getRequest();
@@ -31,12 +39,18 @@ export class PermissionsGuard implements CanActivate {
 
     if (!dbUser) return false;
 
-    const userPermissions = dbUser.role.permissions.map(p => p.name);
+    const userPermissions = dbUser.role.permissions.map((p) => p.name);
     const hasWildcard = userPermissions.includes('*:*');
-    const hasPermission = hasWildcard || requiredPermissions.every(permission => userPermissions.includes(permission));
+    const hasPermission =
+      hasWildcard ||
+      requiredPermissions.every((permission) =>
+        userPermissions.includes(permission),
+      );
 
     if (!hasPermission) {
-      throw new ForbiddenException('You do not have permission to access this resource');
+      throw new ForbiddenException(
+        'You do not have permission to access this resource',
+      );
     }
 
     return true;

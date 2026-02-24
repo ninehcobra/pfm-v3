@@ -205,7 +205,7 @@ export default function BlogAdminPage() {
       ],
       promptURLs: false,
     };
-  }, [uploadImage]);
+  }, [uploadImage]) as any;
 
   return (
     <div className="space-y-8 pb-20">

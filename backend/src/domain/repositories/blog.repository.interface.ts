@@ -7,6 +7,10 @@ export interface IBlogRepository {
   findBySlug(slug: string): Promise<Blog | null>;
   update(id: string, data: Partial<Blog>): Promise<Blog>;
   delete(id: string): Promise<void>;
+  incrementView(slug: string): Promise<void>;
+  addComment(blogId: string, authorId: string, content: string): Promise<any>;
+  deleteComment(commentId: string, userId: string): Promise<void>;
+  toggleReaction(blogId: string, userId: string, type: string): Promise<any>;
 }
 
 export const BLOG_REPOSITORY = 'IBlogRepository';

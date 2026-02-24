@@ -17,6 +17,9 @@ model User {
   avatar        String?
   avatarPublicId String?
   blogs         Blog[]
+  logs          SystemLog[]
+  comments      Comment[]
+  reactions     Reaction[]
   refreshToken  String?
   
   roleId        String
@@ -143,6 +146,109 @@ model Blog {
   author      User     @relation(fields: [authorId], references: [id])
   tags        Tag[]
   translations BlogTranslation[]
+  views       Int      @default(0)
+  comments    Comment[]
+  reactions   Reaction[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  blogId    String
+  blog      Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([blogId])
+  @@index([authorId])
+}
+
+enum ReactionType {
+  LIKE
+  LOVE
+  WOW
+  BRAVO
+}
+
+model Reaction {
+  id        String       @id @default(uuid())
+  type      ReactionType @default(LIKE)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id])
+  blogId    String
+  blog      Blog         @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, blogId]) // One reaction per user per blog
+  @@index([blogId])
+}
+
+enum SystemLogLevel {
+  INFO
+  WARN
+  ERROR
+  DEBUG
+}
+
+enum SystemLogStatus {
+  SUCCESS
+  FAILED
+}
+
+model SystemLog {
+  id          String    @id @default(uuid())
+  level       SystemLogLevel  @default(INFO)
+  source      String    // e.g., "API", "AUTH", "DATABASE", "CRON"
+  action      String    // e.g., "USER_LOGIN", "BLOG_CREATE"
+  message     String    @db.Text
+  metadata    Json?     // Stores request body, headers, error stack, etc.
+  
+  // HTTP context (if applicable)
+  path        String?
+  method      String?
+  statusCode  Int?
+  duration    Int?      // In milliseconds
+  ip          String?
+  userAgent   String?
+  
+  status      SystemLogStatus @default(SUCCESS)
+  
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  createdAt   DateTime  @default(now())
+
+  @@index([level])
+  @@index([source])
+  @@index([action])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([status])
+}
+
+model Contact {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String?
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([isRead])
+}
+
+model Subscriber {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([isActive])
 }

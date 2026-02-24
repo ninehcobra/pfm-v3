@@ -1,5 +1,8 @@
 export interface IMediaService {
-  uploadImage(file: any, folder?: string): Promise<{ url: string; publicId: string }>;
+  uploadImage(
+    file: any,
+    folder?: string,
+  ): Promise<{ url: string; publicId: string }>;
   deleteImage(publicId: string): Promise<void>;
 }
 

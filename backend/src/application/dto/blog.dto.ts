@@ -16,3 +16,11 @@ export interface UpdateBlogDto {
   thumbnailPublicId?: string;
   published?: boolean;
 }
+
+export interface CreateCommentDto {
+  content: string;
+}
+
+export interface ReactionDto {
+  type: 'LIKE' | 'LOVE' | 'WOW' | 'BRAVO';
+}

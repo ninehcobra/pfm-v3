@@ -23,6 +23,7 @@ const menuItems = [
   { icon: Briefcase, label: 'Experience', href: '/admin/experience' },
   { icon: PenTool, label: 'Blog Posts', href: '/admin/blog' },
   { icon: LanguagesIcon, label: 'Languages', href: '/admin/languages' },
+  { icon: Layers, label: 'System Logs', href: '/admin/logs' },
   { icon: Settings, label: 'System Config', href: '/admin/config' },
 ];
 

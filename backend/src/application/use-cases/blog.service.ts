@@ -14,10 +14,13 @@ export class BlogService {
   ) {}
 
   async getAllBlogs(locale: string = 'en'): Promise<Blog[]> {
-    return this.blogRepository.findAll(true); 
+    return this.blogRepository.findAll(true);
   }
 
-  async getBlogBySlug(slug: string, locale: string = 'en'): Promise<Blog | null> {
+  async getBlogBySlug(
+    slug: string,
+    locale: string = 'en',
+  ): Promise<Blog | null> {
     return this.blogRepository.findBySlug(slug);
   }
 
@@ -28,7 +31,12 @@ export class BlogService {
 
   async updateBlog(id: string, data: UpdateBlogDto): Promise<Blog> {
     const blog = await this.blogRepository.findById(id);
-    if (blog && data.thumbnail && blog.thumbnailPublicId && data.thumbnailPublicId !== blog.thumbnailPublicId) {
+    if (
+      blog &&
+      data.thumbnail &&
+      blog.thumbnailPublicId &&
+      data.thumbnailPublicId !== blog.thumbnailPublicId
+    ) {
       await this.mediaService.deleteImage(blog.thumbnailPublicId);
     }
     return this.blogRepository.update(id, data);
@@ -40,5 +48,21 @@ export class BlogService {
       await this.mediaService.deleteImage(blog.thumbnailPublicId);
     }
     return this.blogRepository.delete(id);
+  }
+
+  async incrementView(slug: string): Promise<void> {
+    return this.blogRepository.incrementView(slug);
+  }
+
+  async addComment(blogId: string, authorId: string, content: string): Promise<any> {
+    return this.blogRepository.addComment(blogId, authorId, content);
+  }
+
+  async deleteComment(commentId: string, userId: string): Promise<void> {
+    return this.blogRepository.deleteComment(commentId, userId);
+  }
+
+  async toggleReaction(blogId: string, userId: string, type: string): Promise<any> {
+    return this.blogRepository.toggleReaction(blogId, userId, type);
   }
 }

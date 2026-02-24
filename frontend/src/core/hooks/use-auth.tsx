@@ -10,6 +10,7 @@ interface User {
   email: string;
   fullName: string;
   roleName: string;
+  permissions?: string[];
 }
 
 interface AuthContextType {

@@ -8,10 +8,13 @@ export class Blog {
   createdAt: Date;
   updatedAt: Date;
   translations?: BlogTranslation[];
-  
+
   // Virtual fields for convenience when loaded for a specific locale
   title?: string;
   content?: string;
+  views: number;
+  comments?: any[];
+  reactions?: any[];
 }
 
 export class BlogTranslation {

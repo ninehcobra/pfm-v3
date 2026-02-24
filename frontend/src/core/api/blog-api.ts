@@ -29,6 +29,33 @@ export const blogApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Blog'],
     }),
+    getBlogBySlug: builder.query<any, string>({
+      query: (slug) => `/blogs/${slug}`,
+      providesTags: (result, error, slug) => [{ type: 'Blog', id: slug }],
+    }),
+    addComment: builder.mutation<any, { blogId: string; content: string }>({
+      query: ({ blogId, content }) => ({
+        url: `/blogs/${blogId}/comments`,
+        method: 'POST',
+        body: { content },
+      }),
+      invalidatesTags: (result, error, { blogId }) => [{ type: 'Blog', id: blogId }],
+    }),
+    deleteComment: builder.mutation<void, string>({
+      query: (commentId) => ({
+        url: `/blogs/comments/${commentId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Blog'],
+    }),
+    toggleReaction: builder.mutation<any, { blogId: string; type: string }>({
+      query: ({ blogId, type }) => ({
+        url: `/blogs/${blogId}/reactions`,
+        method: 'POST',
+        body: { type },
+      }),
+      invalidatesTags: (result, error, { blogId }) => [{ type: 'Blog', id: blogId }],
+    }),
   }),
 });
 
@@ -37,4 +64,8 @@ export const {
   useCreateBlogMutation,
   useUpdateBlogMutation,
   useDeleteBlogMutation,
+  useGetBlogBySlugQuery,
+  useAddCommentMutation,
+  useDeleteCommentMutation,
+  useToggleReactionMutation,
 } = blogApi;

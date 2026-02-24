@@ -7,45 +7,58 @@ export class ExperienceManagementService {
 
   async createExperience(data: {
     period: string;
-    translations: { languageCode: string; company: string; role: string; description: string }[];
+    translations: {
+      languageCode: string;
+      company: string;
+      role: string;
+      description: string;
+    }[];
   }) {
-    const langCodes = data.translations.map(t => t.languageCode);
+    const langCodes = data.translations.map((t) => t.languageCode);
     const languages = await this.prisma.language.findMany({
-      where: { code: { in: langCodes } }
+      where: { code: { in: langCodes } },
     });
-    const langMap = new Map(languages.map(l => [l.code, l.id]));
+    const langMap = new Map(languages.map((l) => [l.code, l.id]));
 
     return this.prisma.experience.create({
       data: {
         period: data.period,
         translations: {
-          create: data.translations.map(t => ({
-            languageId: langMap.get(t.languageCode)!,
+          create: data.translations.map((t) => ({
+            languageId: langMap.get(t.languageCode),
             company: t.company,
             role: t.role,
             description: t.description,
-          }))
-        }
+          })),
+        },
       },
-      include: { translations: true }
+      include: { translations: true },
     });
   }
 
-  async updateExperience(id: string, data: {
-    period?: string;
-    translations: { languageCode: string; company: string; role: string; description: string }[];
-  }) {
+  async updateExperience(
+    id: string,
+    data: {
+      period?: string;
+      translations: {
+        languageCode: string;
+        company: string;
+        role: string;
+        description: string;
+      }[];
+    },
+  ) {
     const exp = await this.prisma.experience.findUnique({ where: { id } });
     if (!exp) throw new NotFoundException('Experience not found');
 
     const languages = await this.prisma.language.findMany({
-      where: { code: { in: data.translations.map(t => t.languageCode) } }
+      where: { code: { in: data.translations.map((t) => t.languageCode) } },
     });
-    const langMap = new Map(languages.map(l => [l.code, l.id]));
+    const langMap = new Map(languages.map((l) => [l.code, l.id]));
 
     await this.prisma.experience.update({
       where: { id },
-      data: { period: data.period }
+      data: { period: data.period },
     });
 
     for (const t of data.translations) {
@@ -53,15 +66,25 @@ export class ExperienceManagementService {
       if (languageId) {
         await this.prisma.experienceTranslation.upsert({
           where: { experienceId_languageId: { experienceId: id, languageId } },
-          update: { company: t.company, role: t.role, description: t.description },
-          create: { experienceId: id, languageId, company: t.company, role: t.role, description: t.description }
+          update: {
+            company: t.company,
+            role: t.role,
+            description: t.description,
+          },
+          create: {
+            experienceId: id,
+            languageId,
+            company: t.company,
+            role: t.role,
+            description: t.description,
+          },
         });
       }
     }
 
     return this.prisma.experience.findUnique({
       where: { id },
-      include: { translations: true }
+      include: { translations: true },
     });
   }
 
@@ -73,10 +96,10 @@ export class ExperienceManagementService {
     return this.prisma.experience.findMany({
       include: {
         translations: {
-          include: { language: true }
-        }
+          include: { language: true },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 }

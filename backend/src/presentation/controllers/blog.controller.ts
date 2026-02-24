@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { BlogService } from 'src/application/use-cases/blog.service';
 import { PermissionsGuard } from 'src/presentation/guards/permissions.guard';
@@ -28,7 +29,34 @@ export class BlogController {
 
   @Get(':slug')
   async findOne(@Param('slug') slug: string) {
+    await this.blogService.incrementView(slug);
     return this.blogService.getBlogBySlug(slug);
+  }
+
+  @Post(':id/comments')
+  @UseGuards(JwtAuthGuard)
+  async addComment(
+    @Param('id') id: string,
+    @Body() data: { content: string },
+    @Req() req: any,
+  ) {
+    return this.blogService.addComment(id, req.user.id, data.content);
+  }
+
+  @Delete('comments/:commentId')
+  @UseGuards(JwtAuthGuard)
+  async removeComment(@Param('commentId') commentId: string, @Req() req: any) {
+    return this.blogService.deleteComment(commentId, req.user.id);
+  }
+
+  @Post(':id/reactions')
+  @UseGuards(JwtAuthGuard)
+  async toggleReaction(
+    @Param('id') id: string,
+    @Body() data: { type: string },
+    @Req() req: any,
+  ) {
+    return this.blogService.toggleReaction(id, req.user.id, data.type);
   }
 
   @Post()

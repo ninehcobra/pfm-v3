@@ -23,10 +23,30 @@ import { UploadController } from './presentation/controllers/upload.controller';
 import { ProfileController } from './presentation/controllers/profile.controller';
 import { MEDIA_SERVICE } from './application/services/media.service';
 import { CloudinaryService } from './infrastructure/cloudinary/cloudinary.service';
+import { LoggerModule } from './infrastructure/logger/logger.module';
+import { LogController } from './presentation/controllers/log.controller';
+import { LogManagementService } from './application/use-cases/log.management.service';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggingInterceptor } from './presentation/interceptors/logging.interceptor';
+import { DashboardController } from './presentation/controllers/dashboard.controller';
+import { DashboardService } from './application/use-cases/dashboard.service';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UserPersistenceModule],
-  controllers: [AppController, AuthController, BlogController, PortfolioController, ProjectManagementController, ExperienceManagementController, UIContentManagementController, LanguageManagementController, UploadController, ProfileController],
+  imports: [PrismaModule, AuthModule, UserPersistenceModule, LoggerModule],
+  controllers: [
+    AppController,
+    AuthController,
+    BlogController,
+    PortfolioController,
+    ProjectManagementController,
+    ExperienceManagementController,
+    UIContentManagementController,
+    LanguageManagementController,
+    UploadController,
+    ProfileController,
+    LogController,
+    DashboardController,
+  ],
   providers: [
     AppService,
     BlogService,
@@ -42,6 +62,12 @@ import { CloudinaryService } from './infrastructure/cloudinary/cloudinary.servic
     {
       provide: BLOG_REPOSITORY,
       useClass: BlogRepository,
+    },
+    LogManagementService,
+    DashboardService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
     },
   ],
 })

@@ -27,38 +27,63 @@ async function main() {
     },
   });
 
+  const he = await prisma.language.upsert({
+    where: { code: 'he' },
+    update: {},
+    create: {
+      code: 'he',
+      name: 'Hebrew',
+      fontFamily: "'Inter', sans-serif",
+      direction: 'rtl',
+    },
+  });
+
+  const ru = await prisma.language.upsert({
+    where: { code: 'ru' },
+    update: {},
+    create: {
+      code: 'ru',
+      name: 'Russian',
+      fontFamily: "'Inter', sans-serif",
+      direction: 'ltr',
+    },
+  });
+
+  const languages = [en, vi, he, ru];
+
   // 2. UI Content (Nav & Common)
   const commonContent = [
-    { key: 'nav.home', en: 'Home', vi: 'Trang chủ' },
-    { key: 'nav.about', en: 'About', vi: 'Giới thiệu' },
-    { key: 'nav.projects', en: 'Projects', vi: 'Dự án' },
-    { key: 'nav.experience', en: 'Experience', vi: 'Kinh nghiệm' },
-    { key: 'nav.blog', en: 'Blog', vi: 'Bài viết' },
-    { key: 'common.available', en: 'Available for new opportunities', vi: 'Sẵn sàng cho các cơ hội mới' },
-    { key: 'common.resume', en: 'Download Resume', vi: 'Tải CV' },
-    { key: 'common.epic', en: "Let's build something epic.", vi: 'Hãy cùng tạo nên điều kỳ diệu.' },
-    { key: 'common.footer', en: 'Crafted by Antigravity', vi: 'Thiết kế bởi Antigravity' },
-    { key: 'hero.title', en: 'Crafting Digital Excellence', vi: 'Kiến Tạo Sự Hoàn Hảo Số' },
-    { key: 'hero.subtitle', en: "I'm a Full-stack Engineer dedicated to building high-performance, accessible, and visually stunning applications using Clean Architecture.", vi: 'Tôi là một Kỹ sư Full-stack tận tâm xây dựng các ứng dụng hiệu suất cao, dễ tiếp cận và có giao diện ấn tượng dựa trên Kiến trúc Sạch (Clean Architecture).' },
-    { key: 'about.title', en: 'Passionate about solving complex problems.', vi: 'Đam mê giải quyết những vấn đề phức tạp.' },
-    { key: 'about.p1', en: 'My journey began with a curiosity about how things work under the hood. Today, I build systems that are not only functional but also architecturally sound.', vi: 'Hành trình của tôi bắt đầu từ sự tò mò về cách mọi thứ vận hành. Ngày nay, tôi xây dựng các hệ thống không chỉ hoạt động tốt mà còn có cấu trúc vững chắc.' },
-    { key: 'about.p2', en: 'I specialize in Clean Architecture, ensuring that my codebases are maintainable, testable, and future-proof. Whether it\'s a high-concurrency backend or a pixel-perfect frontend, I strive for excellence in every line of code.', vi: 'Tôi chuyên về Clean Architecture, đảm bảo mã nguồn dễ bảo trì, dễ kiểm thử và bền vững. Dù là backend xử lý song song cao hay frontend pixel-perfect, tôi luôn hướng tới sự xuất sắc trong từng dòng code.' },
-    { key: 'about.frontend', en: 'Frontend', vi: 'Giao diện (Frontend)' },
-    { key: 'about.backend', en: 'Backend', vi: 'Hệ thống (Backend)' },
-    { key: 'about.caption', en: 'That\'s me at the AI Summit', vi: 'Đó là tôi tại AI Summit' },
+    { key: 'nav.home', en: 'Home', vi: 'Trang chủ', he: 'בית', ru: 'Главная' },
+    { key: 'nav.about', en: 'About', vi: 'Giới thiệu', he: 'אודות', ru: 'О нас' },
+    { key: 'nav.projects', en: 'Projects', vi: 'Dự án', he: 'פרויקטים', ru: 'Проекты' },
+    { key: 'nav.experience', en: 'Experience', vi: 'Kinh nghiệm', he: 'ניסיון', ru: 'Опыт' },
+    { key: 'nav.blog', en: 'Blog', vi: 'Bài viết', he: 'בלוג', ru: 'Блог' },
+    { key: 'common.available', en: 'Available for new opportunities', vi: 'Sẵn sàng cho các cơ hội mới', he: 'זמין להזדמנויות חדשות', ru: 'Доступен для новых возможностей' },
+    { key: 'common.resume', en: 'Download Resume', vi: 'Tải CV', he: 'הורד קורות חיים', ru: 'Скачать резюме' },
+    { key: 'common.epic', en: "Let's build something epic.", vi: 'Hãy cùng tạo nên điều kỳ diệu.', he: 'בואו נבנה משהו אפי.', ru: 'Давайте создадим что-то эпическое.' },
+    { key: 'common.footer', en: 'Crafted by Antigravity', vi: 'Thiết kế bởi Antigravity', he: 'נוצר על ידי Antigravity', ru: 'Создано Antigravity' },
+    { key: 'hero.title', en: 'Crafting Digital Excellence', vi: 'Kiến Tạo Sự Hoàn Hảo Số', he: 'יצירת מצוינות דיגיטלית', ru: 'Создание цифрового совершенства' },
+    { key: 'hero.subtitle', en: "I'm a Full-stack Engineer dedicated to building high-performance, accessible, and visually stunning applications using Clean Architecture.", vi: 'Tôi là một Kỹ sư Full-stack tận tâm xây dựng các ứng dụng hiệu suất cao, dễ tiếp cận và có giao diện ấn tượng dựa trên Kiến trúc Sạch (Clean Architecture).', he: 'אני מהנדס פול-סטאק המוקדש לבניית אפליקציות עתירות ביצועים, נגישות ומרהיבות ויזואלית באמצעות ארכיטקטורה נקייה.', ru: 'Я Full-stack инженер, занимающийся созданием высокопроизводительных, доступных и визуально потрясающих приложений с использованием чистой архитектуры.' },
+    { key: 'blog.views', en: 'Views', vi: 'Lượt xem', he: 'צפיות', ru: 'Просмотры' },
+    { key: 'blog.how_was_it', en: 'Transmission Feedback', vi: 'Phản hồi Bản tin', he: 'משוב על השידור', ru: 'Обратная связь по трансляции' },
+    { key: 'blog.comments', en: 'Comments', vi: 'Bình luận', he: 'תגובות', ru: 'Комментарии' },
+    { key: 'blog.share_knowledge', en: 'Share Knowledge', vi: 'Chia sẻ Kiến thức', he: 'שתף ידע', ru: 'Поделиться знаниями' },
+    { key: 'blog.link_copied', en: 'Link copied to clipboard', vi: 'Đã sao chép liên kết', he: 'הקישור הועתק ללוח', ru: 'Ссылка скопирована в буфер обмена' },
+    { key: 'blog.copy_link', en: 'Copy Link', vi: 'Sao chép Liên kết', he: 'העתק קישור', ru: 'Копировать ссылку' },
+    { key: 'blog.comment_placeholder', en: 'Type your transmission here...', vi: 'Nhập nội dung của bạn tại đây...', he: 'הקלד את השידור שלך כאן...', ru: 'Введите ваше сообщение здесь...' },
   ];
 
   for (const item of commonContent) {
-    await prisma.uIContent.upsert({
-      where: { key_languageId: { key: item.key, languageId: en.id } },
-      update: { value: item.en },
-      create: { key: item.key, value: item.en, languageId: en.id },
-    });
-    await prisma.uIContent.upsert({
-      where: { key_languageId: { key: item.key, languageId: vi.id } },
-      update: { value: item.vi },
-      create: { key: item.key, value: item.vi, languageId: vi.id },
-    });
+    for (const lang of languages) {
+      const value = (item as any)[lang.code];
+      if (value) {
+        await prisma.uIContent.upsert({
+          where: { key_languageId: { key: item.key, languageId: lang.id } },
+          update: { value },
+          create: { key: item.key, value, languageId: lang.id },
+        });
+      }
+    }
   }
 
   // 3. Projects

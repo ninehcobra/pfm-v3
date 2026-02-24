@@ -10,7 +10,7 @@ export interface LayoutContextType {
   direction: 'ltr' | 'rtl';
   setDirection: (dir: 'ltr' | 'rtl') => void;
   toggleDirection: () => void;
-  locale: 'en' | 'vi' | string;
+  locale: string;
   setLocale: (locale: string) => void;
   availableLocales: { code: string; name: string }[];
   content: any;
@@ -25,7 +25,7 @@ const LayoutContext = React.createContext<LayoutContextType | undefined>(undefin
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   const [direction, setDirection] = React.useState<'ltr' | 'rtl'>('ltr');
-  const [locale, setLocale] = React.useState<string | null>(null);
+  const [locale, setLocale] = React.useState<string>('en');
   const [availableLocales, setAvailableLocales] = React.useState([]);
   const [content, setContent] = React.useState<any>(null);
   const [projects, setProjects] = React.useState([]);

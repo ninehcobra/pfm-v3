@@ -10,10 +10,10 @@ export class UserRepository implements IUserRepository {
   async create(data: Partial<User>): Promise<User> {
     return this.prisma.user.create({
       data: {
-        email: data.email!,
-        password: data.password!,
-        fullName: data.fullName!,
-        roleId: data.roleId!,
+        email: data.email,
+        password: data.password,
+        fullName: data.fullName,
+        roleId: data.roleId,
         avatar: data.avatar,
         avatarPublicId: data.avatarPublicId,
       },

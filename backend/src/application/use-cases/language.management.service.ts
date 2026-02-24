@@ -7,7 +7,7 @@ export class LanguageManagementService {
 
   async getAllLanguages() {
     return this.prisma.language.findMany({
-      orderBy: { isDefault: 'desc' }
+      orderBy: { isDefault: 'desc' },
     });
   }
 
@@ -21,19 +21,21 @@ export class LanguageManagementService {
     const newLang = await this.prisma.language.create({ data });
 
     // Auto-copy UIContent from Default Language to the new language
-    const defaultLang = await this.prisma.language.findFirst({ where: { isDefault: true } });
+    const defaultLang = await this.prisma.language.findFirst({
+      where: { isDefault: true },
+    });
     if (defaultLang && defaultLang.id !== newLang.id) {
       const defaultContent = await this.prisma.uIContent.findMany({
-        where: { languageId: defaultLang.id }
+        where: { languageId: defaultLang.id },
       });
 
       if (defaultContent.length > 0) {
         await this.prisma.uIContent.createMany({
-          data: defaultContent.map(c => ({
+          data: defaultContent.map((c) => ({
             key: c.key,
             languageId: newLang.id,
-            value: c.value
-          }))
+            value: c.value,
+          })),
         });
       }
     }
@@ -41,26 +43,29 @@ export class LanguageManagementService {
     return newLang;
   }
 
-  async updateLanguage(id: string, data: {
-    code?: string;
-    name?: string;
-    fontFamily?: string;
-    direction?: string;
-    isDefault?: boolean;
-  }) {
+  async updateLanguage(
+    id: string,
+    data: {
+      code?: string;
+      name?: string;
+      fontFamily?: string;
+      direction?: string;
+      isDefault?: boolean;
+    },
+  ) {
     const lang = await this.prisma.language.findUnique({ where: { id } });
     if (!lang) throw new NotFoundException('Language not found');
 
     if (data.isDefault && !lang.isDefault) {
       await this.prisma.language.updateMany({
         where: { isDefault: true },
-        data: { isDefault: false }
+        data: { isDefault: false },
       });
     }
 
     return this.prisma.language.update({
       where: { id },
-      data
+      data,
     });
   }
 

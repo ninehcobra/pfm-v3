@@ -30,10 +30,7 @@ export class AuthService implements IAuthService {
 
   async login(credentials: LoginDto): Promise<LoginResponse> {
     const user = await this.userRepository.findByEmail(credentials.email);
-    if (
-      !user ||
-      !(await bcrypt.compare(credentials.password, user.password!))
-    ) {
+    if (!user || !(await bcrypt.compare(credentials.password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
 

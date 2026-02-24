@@ -1,16 +1,22 @@
-import { 
-  Controller, 
-  Get, 
-  Put, 
-  Body, 
-  UseGuards, 
-  Req, 
+import {
+  Controller,
+  Get,
+  Put,
+  Body,
+  UseGuards,
+  Req,
   Inject,
-  NotFoundException
+  NotFoundException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { USER_REPOSITORY, IUserRepository } from '../../domain/repositories/user.repository.interface';
-import { IMediaService, MEDIA_SERVICE } from '../../application/services/media.service';
+import {
+  USER_REPOSITORY,
+  IUserRepository,
+} from '../../domain/repositories/user.repository.interface';
+import {
+  IMediaService,
+  MEDIA_SERVICE,
+} from '../../application/services/media.service';
 import { UserDto } from '../../application/dto/user.dto';
 
 @Controller('profile')
@@ -35,7 +41,11 @@ export class ProfileController {
     if (!user) throw new NotFoundException('User not found');
 
     // Handle avatar cleanup
-    if (data.avatar && user.avatarPublicId && data.avatarPublicId !== user.avatarPublicId) {
+    if (
+      data.avatar &&
+      user.avatarPublicId &&
+      data.avatarPublicId !== user.avatarPublicId
+    ) {
       await this.mediaService.deleteImage(user.avatarPublicId);
     }
 
