@@ -2,9 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@/core/api/api-client';
-import { toast } from 'sonner';
-
+import { useLoginMutation, useRegisterMutation, useLogoutMutation } from '@/core/api/auth-api';
 import { RoleSelectionModal } from '@/components/auth/role-selection-modal';
 
 interface User {
@@ -12,12 +10,14 @@ interface User {
   email: string;
   fullName: string;
   roleName: string;
+  avatar?: string;
   permissions?: string[];
 }
 
 interface AuthContextType {
   user: User | null;
   login: (credentials: any) => Promise<User>;
+  register: (data: any) => Promise<User>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -29,6 +29,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const router = useRouter();
+
+  const [loginMutation] = useLoginMutation();
+  const [registerMutation] = useRegisterMutation();
+  const [logoutMutation] = useLogoutMutation();
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -46,10 +50,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (e.shiftKey && e.key === 'A') {
         const currentUserStr = localStorage.getItem('user');
         if (currentUserStr) {
-          const currentUser = JSON.parse(currentUserStr);
-          if (currentUser.roleName === 'SUPERADMIN') {
-            e.preventDefault();
-            setIsRoleModalOpen(true);
+          try {
+            const currentUser = JSON.parse(currentUserStr);
+            if (currentUser.roleName === 'SUPERADMIN') {
+              e.preventDefault();
+              setIsRoleModalOpen(true);
+            }
+          } catch (err) {
+            console.error('Failed to parse user from storage:', err);
           }
         }
       }
@@ -61,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (credentials: any) => {
     try {
-      const { data } = await api.post('/auth/login', credentials);
+      const data = await loginMutation(credentials).unwrap();
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
       localStorage.setItem('user', JSON.stringify(data.user));
@@ -71,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.user.roleName === 'SUPERADMIN') {
         setIsRoleModalOpen(true);
       } else {
-        router.push('/');
+        router.push('/profile');
       }
       return data.user;
     } catch (err: any) {
@@ -80,16 +88,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
+  const register = async (registerData: any) => {
+    try {
+      await registerMutation(registerData).unwrap();
+      // After registration, attempt to login
+      return await login({ email: registerData.email, password: registerData.password });
+    } catch (err: any) {
+      console.error('Registration failed:', err);
+      throw err;
+    }
+  };
+
+  const logout = async () => {
+    const currentUser = user;
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     setUser(null);
+    
+    if (currentUser) {
+      try {
+        await logoutMutation({ userId: currentUser.id }).unwrap();
+      } catch (err) {
+        console.error('Logout API call failed:', err);
+      }
+    }
+    
     router.push('/login');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
       {children}
       <RoleSelectionModal 
         isOpen={isRoleModalOpen} 

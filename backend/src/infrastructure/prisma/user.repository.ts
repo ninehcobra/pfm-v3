@@ -52,4 +52,11 @@ export class UserRepository implements IUserRepository {
   async delete(id: string): Promise<void> {
     await this.prisma.user.delete({ where: { id } });
   }
+
+  async findRoleByName(name: string): Promise<{ id: string } | null> {
+    return await this.prisma.role.findUnique({
+      where: { name },
+      select: { id: true },
+    });
+  }
 }

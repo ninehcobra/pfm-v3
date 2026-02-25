@@ -6,6 +6,7 @@ export interface IUserRepository {
   findById(id: string): Promise<User | null>;
   update(id: string, data: Partial<User>): Promise<User>;
   findByRefreshToken(token: string): Promise<User | null>;
+  findRoleByName(name: string): Promise<{ id: string } | null>;
 }
 
 export const USER_REPOSITORY = 'IUserRepository';

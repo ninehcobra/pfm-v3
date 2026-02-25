@@ -6,13 +6,17 @@ import { useAuth } from '@/core/hooks/use-auth';
 import { ShinyText } from '@/components/ui/shiny-text';
 import { Magnet } from '@/components/ui/magnet';
 import { BlurText } from '@/components/ui/blur-text';
-import { Lock, Mail, Loader2, Rocket, ArrowLeft, ShieldCheck, Zap } from 'lucide-react';
+import { Lock, Mail, Loader2, UserPlus, ArrowLeft, User, Zap } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useLayout } from '@/core/providers/theme-provider';
 
-export default function LoginPage() {
-  const { login, user, isLoading } = useAuth();
+export default function RegisterPage() {
+  const { register, user, isLoading } = useAuth();
+  const { t } = useLayout();
   const router = useRouter();
+  
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -30,9 +34,9 @@ export default function LoginPage() {
     setError('');
     setIsSubmitting(true);
     try {
-      await login({ email, password });
+      await register({ fullName, email, password });
     } catch (err: any) {
-      setError(err?.data?.message || err?.message || 'Access denied. Verify your credentials.');
+      setError(err?.data?.message || err?.message || 'Registration failed. Please check your details.');
     } finally {
       setIsSubmitting(false);
     }
@@ -55,11 +59,11 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150" />
       </div>
 
-      <Link href="/" className="absolute top-10 left-10 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all group z-50">
+      <Link href="/login" className="absolute top-10 left-10 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all group z-50">
         <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center group-hover:border-primary/50 transition-all">
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
         </div>
-        <span className="text-xs font-black uppercase tracking-widest px-2">Abort to Earth</span>
+        <span className="text-xs font-black uppercase tracking-widest px-2">{t('common.back') || 'Back'}</span>
       </Link>
       
       <motion.div 
@@ -73,14 +77,14 @@ export default function LoginPage() {
             animate={{ y: 0, opacity: 1 }}
             className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 border border-primary/20 rounded-[2rem] text-primary mb-8 shadow-2xl shadow-primary/20 backdrop-blur-xl"
           >
-            <ShieldCheck className="w-10 h-10" />
+            <UserPlus className="w-10 h-10" />
           </motion.div>
           <BlurText 
-            text="Control Cockpit" 
+            text="Join the Matrix" 
             className="text-5xl font-black mb-4 tracking-tighter text-white"
           />
           <p className="text-muted-foreground font-medium text-lg leading-relaxed max-w-sm mx-auto">
-            Authorized personnel only. Initiate authentication protocol to access the matrix.
+            Create your terminal identity and access the Antigravity ecosystem.
           </p>
         </div>
 
@@ -89,18 +93,35 @@ export default function LoginPage() {
           <div className="absolute inset-0 bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 group-hover:border-primary/20 transition-all duration-500" />
           
           <div className="relative p-10 space-y-8">
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-3">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary ml-2 flex items-center gap-2">
+                  <User className="w-3 h-3" />
+                  Full Name
+                </label>
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="John Doe"
+                    className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] py-5 px-6 outline-none focus:border-primary/50 focus:bg-white/[0.08] transition-all font-bold text-white placeholder:text-white/10"
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="space-y-3">
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary ml-2 flex items-center gap-2">
                   <Mail className="w-3 h-3" />
-                  Terminal Identity
+                  Terminal Identity (Email)
                 </label>
                 <div className="relative">
                   <input 
                     type="email" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@antigravity.dev"
+                    placeholder="client@space.com"
                     className="w-full bg-white/5 border border-white/10 rounded-[1.5rem] py-5 px-6 outline-none focus:border-primary/50 focus:bg-white/[0.08] transition-all font-bold text-white placeholder:text-white/10"
                     required
                   />
@@ -110,7 +131,7 @@ export default function LoginPage() {
               <div className="space-y-3">
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary ml-2 flex items-center gap-2">
                   <Lock className="w-3 h-3" />
-                  Access Cipher
+                  Access Cipher (Password)
                 </label>
                 <div className="relative">
                   <input 
@@ -149,12 +170,12 @@ export default function LoginPage() {
                   >
                     <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
                     <span className="relative">
-                      {isSubmitting ? 'Bypassing...' : 'Engage'}
+                      {isSubmitting ? 'Initializing...' : 'Join Protocol'}
                     </span>
                     {isSubmitting ? (
                       <Loader2 className="w-4 h-4 animate-spin relative" />
                     ) : (
-                      <Rocket className="w-4 h-4 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform relative" />
+                      <UserPlus className="w-4 h-4 group-hover/btn:scale-110 transition-transform relative" />
                     )}
                   </button>
                 </Magnet>
@@ -165,9 +186,9 @@ export default function LoginPage() {
 
         <div className="mt-8 text-center space-y-4">
           <p className="text-muted-foreground text-sm font-medium">
-            Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-primary hover:underline font-bold">
-              Sign up now
+            Already have an identity?{' '}
+            <Link href="/login" className="text-primary hover:underline font-bold">
+              Initiate Login
             </Link>
           </p>
           <ShinyText text="ANTIGRAVITY SYSTEMS • CORE v2.4.0" className="text-[10px] font-black tracking-[0.5em] opacity-30 text-white" />

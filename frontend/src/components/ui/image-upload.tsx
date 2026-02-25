@@ -2,8 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { Upload, X, ImageIcon, Loader2 } from 'lucide-react';
-import api from '@/core/api/api-client';
-import { toast } from 'sonner';
+import { useUploadImageMutation } from '@/core/api/media-api';
 
 interface ImageUploadProps {
   value?: string;
@@ -13,6 +12,7 @@ interface ImageUploadProps {
 }
 
 export function ImageUpload({ value, onChange, onRemove, label }: ImageUploadProps) {
+  const [uploadImage] = useUploadImageMutation();
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -25,10 +25,8 @@ export function ImageUpload({ value, onChange, onRemove, label }: ImageUploadPro
 
     setIsUploading(true);
     try {
-      const res = await api.post('/upload/image', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      onChange(res.data.url, res.data.publicId);
+      const res = await uploadImage(formData).unwrap();
+      onChange(res.url, res.publicId);
     } catch (error) {
       console.error('Upload failed:', error);
     } finally {

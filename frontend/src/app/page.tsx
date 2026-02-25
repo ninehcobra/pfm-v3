@@ -68,10 +68,10 @@ export default function HomePage() {
             <div className="flex items-center gap-3 pl-4 border-l border-border">
               {user ? (
                 <Link 
-                  href={user.roleName === 'SUPERADMIN' ? '/admin' : '/'} 
+                  href={user.roleName === 'SUPERADMIN' ? '/admin' : '/profile'} 
                   className="px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest transition-all"
                 >
-                  {t('nav.dashboard')}
+                  {user.roleName === 'SUPERADMIN' ? t('nav.dashboard') : (t('nav.profile') || 'Profile')}
                 </Link>
               ) : (
                 <Link 

@@ -59,9 +59,17 @@ async function main() {
     { key: 'nav.experience', en: 'Experience', vi: 'Kinh nghiệm', he: 'ניסיון', ru: 'Опыт' },
     { key: 'nav.blog', en: 'Blog', vi: 'Bài viết', he: 'בלוג', ru: 'Блог' },
     { key: 'nav.login', en: 'Login', vi: 'Đăng nhập', he: 'כניסה', ru: 'Вход' },
+    { key: 'nav.profile', en: 'Profile', vi: 'Trang cá nhân', he: 'פרופיל', ru: 'Профиль' },
     { key: 'nav.dashboard', en: 'Dashboard', vi: 'Bảng điều khiển', he: 'לוח בקרה', ru: 'Панель управления' },
+    { key: 'nav.view_site', en: 'View Site', vi: 'Xem trang chủ', he: 'צפה באתר', ru: 'Посмотреть сайт' },
+    { key: 'nav.back_to_site', en: 'Back to Website', vi: 'Quay lại trang web', he: 'חזור לאתר', ru: 'Вернуться на сайт' },
     { key: 'auth.client_portal', en: 'Client Portal', vi: 'Giao diện người dùng', he: 'פורטל לקוחות', ru: 'Клиентский портал' },
-    { key: 'auth.command_center', en: 'Command Center', vi: 'Trung tâm chỉ huy', he: 'מרכז פיקוד', ru: 'Центр управления' },
+    { key: 'auth.command_center', en: 'Command Center', vi: 'Trung tâm chỉ huy', he: 'מרכז פי chỉ huy', ru: 'Центр управления' },
+    { key: 'auth.terminate_session', en: 'Terminate Session', vi: 'Hết hạn phiên làm việc', he: 'סיים סשן', ru: 'Завершить сеанс' },
+    { key: 'auth.please_login', en: 'Please login to view your profile', vi: 'Vui lòng đăng nhập để xem hồ sơ', he: 'אנא התחבר כדי לצפות בפרופיל', ru: 'Пожалуйста, войдите, để xem профиль' },
+    { key: 'common.back', en: 'Back', vi: 'Quay lại', he: 'חזור', ru: 'Назад' },
+    { key: 'common.logout', en: 'Logout', vi: 'Đăng xuất', he: 'התנתק', ru: 'Выйти' },
+    { key: 'common.security_active', en: 'Antigravity Security Protocol • Active Session', vi: 'Giao thức Bảo mật Antigravity • Phiên hoạt động', he: 'פרוטוקול אבטחה Antigravity • סשן פעיל', ru: 'Протокол безопасности Antigravity • Активная сессия' },
     { key: 'common.available', en: 'Available for new opportunities', vi: 'Sẵn sàng cho các cơ hội mới', he: 'זמין להזדמנויות חדשות', ru: 'Доступен для новых возможностей' },
     { key: 'common.resume', en: 'Download Resume', vi: 'Tải CV', he: 'הורד קורות חיים', ru: 'Скачать резюме' },
     { key: 'common.epic', en: "Let's build something epic.", vi: 'Hãy cùng tạo nên điều kỳ diệu.', he: 'בואו נבנה משהו אפי.', ru: 'Давайте создадим что-то эпическое.' },
@@ -276,6 +284,15 @@ async function main() {
       name: 'SUPERADMIN',
       description: 'System owner with all permissions',
       permissions: { connect: { id: allPermissions.id } },
+    },
+  });
+
+  await prisma.role.upsert({
+    where: { name: 'USER' },
+    update: {},
+    create: {
+      name: 'USER',
+      description: 'Regular client user',
     },
   });
 

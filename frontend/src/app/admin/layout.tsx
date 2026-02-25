@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { useAuth } from '@/core/hooks/use-auth';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useLayout } from '@/core/providers/theme-provider';
 import { 
   LayoutDashboard, 
   Layers, 
@@ -18,17 +19,18 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
-  { icon: Layers, label: 'Projects', href: '/admin/projects' },
-  { icon: Briefcase, label: 'Experience', href: '/admin/experience' },
-  { icon: PenTool, label: 'Blog Posts', href: '/admin/blog' },
-  { icon: LanguagesIcon, label: 'Languages', href: '/admin/languages' },
-  { icon: Layers, label: 'System Logs', href: '/admin/logs' },
-  { icon: Settings, label: 'System Config', href: '/admin/config' },
+  { icon: LayoutDashboard, label: 'nav.dashboard', href: '/admin' },
+  { icon: Layers, label: 'nav.projects', href: '/admin/projects' },
+  { icon: Briefcase, label: 'nav.experience', href: '/admin/experience' },
+  { icon: PenTool, label: 'nav.blog', href: '/admin/blog' },
+  { icon: LanguagesIcon, label: 'nav.languages', href: '/admin/languages' },
+  { icon: Layers, label: 'nav.logs', href: '/admin/logs' },
+  { icon: Settings, label: 'nav.config', href: '/admin/config' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, logout, isLoading } = useAuth();
+  const { t } = useLayout();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -69,7 +71,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className="flex items-center gap-4 p-4 rounded-2xl text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all font-bold text-sm mb-6 border border-dashed border-white/5 hover:border-primary/20"
             >
               <LayoutDashboard className="w-5 h-5 opacity-50" />
-              <span>Back to Website</span>
+              <span>{t('nav.back_to_site') || 'Back to Website'}</span>
             </Link>
             
             <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20 mb-4 px-4">Menu</div>
@@ -87,7 +89,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 >
                   <div className="flex items-center gap-4">
                     <item.icon className="w-5 h-5" />
-                    <span className="font-bold text-sm tracking-tight">{item.label}</span>
+                    <span className="font-bold text-sm tracking-tight">{t(item.label) || item.label}</span>
                   </div>
                   {isActive && <motion.div layoutId="active" className="w-1.5 h-1.5 rounded-full bg-white" />}
                 </Link>
@@ -112,7 +114,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             className="w-full flex items-center gap-4 p-4 rounded-2xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all font-bold text-sm"
           >
             <LogOut className="w-5 h-5" />
-            <span>Terminate Session</span>
+            <span>{t('auth.terminate_session') || 'Terminate Session'}</span>
           </button>
         </div>
       </aside>
@@ -124,7 +126,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
              <span>Admin</span>
              <ChevronRight className="w-4 h-4 opacity-50" />
              <span className="text-foreground">
-               {menuItems.find(m => m.href === pathname)?.label || 'Dashboard'}
+               {t(menuItems.find(m => m.href === pathname)?.label || '') || 'Dashboard'}
              </span>
           </div>
           <div className="flex items-center gap-6">
@@ -133,12 +135,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2"
             >
               <Layers className="w-3 h-3" />
-              View Site
+              {t('nav.view_site') || 'View Site'}
             </Link>
             <div className="h-4 w-px bg-white/10" />
             <div className="flex items-center gap-4">
               <div className="w-4 h-4 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)] animate-pulse" />
-              <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">System Core Active</span>
+              <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                {t('auth.system_core_active') || 'System Core Active'}
+              </span>
             </div>
           </div>
         </header>

@@ -23,20 +23,20 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ReduxProvider>
+        <ReduxProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
             <AuthProvider>
               {children}
               <GlobalSettings />
               <ScrollToTop />
             </AuthProvider>
-          </ReduxProvider>
-        </ThemeProvider>
+          </ThemeProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

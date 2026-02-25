@@ -21,9 +21,20 @@ export class AuthService implements IAuthService {
 
   async register(data: RegisterDto): Promise<UserDto> {
     const hashedPassword = await bcrypt.hash(data.password, 10);
+    
+    let roleId = data.roleId;
+    if (!roleId) {
+      const role = await this.userRepository.findRoleByName('USER');
+      if (!role) {
+        throw new Error('Default role "USER" not found in system.');
+      }
+      roleId = role.id;
+    }
+
     const user = await this.userRepository.create({
       ...data,
       password: hashedPassword,
+      roleId,
     });
     return new UserDto(user);
   }
