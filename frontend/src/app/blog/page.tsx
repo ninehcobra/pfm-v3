@@ -25,7 +25,7 @@ export default function BlogArchivePage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-6xl md:text-8xl font-black tracking-tighter"
           >
-            THE JOURNALS
+            {t('blog.archive_title') || 'THE JOURNALS'}
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -33,7 +33,7 @@ export default function BlogArchivePage() {
             transition={{ delay: 0.1 }}
             className="text-muted-foreground text-lg md:text-xl font-medium max-w-2xl"
           >
-            An archive of engineering insights, design philosophies, and cognitive data transmissions.
+            {t('blog.archive_subtitle') || 'An archive of engineering insights, design philosophies, and cognitive data transmissions.'}
           </motion.p>
         </header>
 
@@ -41,7 +41,7 @@ export default function BlogArchivePage() {
           <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <input 
             type="text" 
-            placeholder="Search the archive..."
+            placeholder={t('blog.search_placeholder') || "Search the archive..."}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-white/5 border border-white/10 rounded-[32px] py-6 pl-16 pr-8 outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/5 transition-all text-lg font-medium"
@@ -55,7 +55,7 @@ export default function BlogArchivePage() {
             ))
           ) : filteredBlogs.length === 0 ? (
             <div className="col-span-full py-20 text-center text-muted-foreground uppercase text-xs font-black tracking-[0.2em] border-2 border-dashed border-white/5 rounded-[40px]">
-              Empty signal. No data matching your query.
+              {t('blog.no_results') || 'Empty signal. No data matching your query.'}
             </div>
           ) : (
             filteredBlogs.map((blog: any, i: number) => {

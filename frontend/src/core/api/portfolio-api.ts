@@ -9,10 +9,6 @@ export const portfolioApi = baseApi.injectEndpoints({
       },
       providesTags: ['Blog'],
     }),
-    getBlogBySlug: builder.query<any, string>({
-      query: (slug) => `/blogs/${slug}`,
-      providesTags: (result, error, slug) => [{ type: 'Blog', id: slug }],
-    }),
   }),
 });
 

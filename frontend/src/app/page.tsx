@@ -13,27 +13,16 @@ import { Github, Linkedin, Twitter, Mail } from 'lucide-react';
 import { LanguageToggle } from '@/components/ui/lang-toggle';
 import { ScrollProgress } from '@/components/ui/scroll-progress';
 import { Maintenance } from '@/components/ui/maintenance';
-import Link from 'next/link';
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Rocket, Shield, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { useAuth } from '@/core/hooks/use-auth';
 import { useGetPortfolioBlogPostsQuery } from '@/core/api/portfolio-api';
-
+import Link from 'next/link';
 export default function HomePage() {
+  const { user } = useAuth();
   const { t, projects, experience, isLoading, error, locale } = useLayout();
   const { data: blogPosts = [], isLoading: isBlogsLoading } = useGetPortfolioBlogPostsQuery({ locale: locale || 'en' });
   const router = useRouter();
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Shift + A -> Admin
-      if (e.shiftKey && e.key === 'A') {
-        router.push('/login');
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [router]);
 
   const milestones = [
     { id: 'hero', label: t('nav.home') || 'Home' },
@@ -70,25 +59,33 @@ export default function HomePage() {
           
           <div className="flex items-center gap-6">
             <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
+              <a href="#hero" className="hover:text-primary transition-colors">{t('nav.home')}</a>
               <a href="#about" className="hover:text-primary transition-colors">{t('nav.about')}</a>
               <a href="#projects" className="hover:text-primary transition-colors">{t('nav.projects')}</a>
               <a href="#experience" className="hover:text-primary transition-colors">{t('nav.experience')}</a>
               <a href="#blog" className="hover:text-primary transition-colors">{t('nav.blog')}</a>
             </div>
-            <div className="flex items-center gap-2 pl-4 border-l border-border">
-              <Link 
-                href="/login" 
-                className="w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-primary transition-all group"
-                title="Admin Terminal (Shift + A)"
-              >
-                <div className="relative">
-                  <Rocket className="w-4 h-4 group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
-                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </Link>
-              <LanguageToggle />
-              <DirectionToggle />
-              <ThemeToggle />
+            <div className="flex items-center gap-3 pl-4 border-l border-border">
+              {user ? (
+                <Link 
+                  href={user.roleName === 'SUPERADMIN' ? '/admin' : '/'} 
+                  className="px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest transition-all"
+                >
+                  {t('nav.dashboard')}
+                </Link>
+              ) : (
+                <Link 
+                  href="/login" 
+                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-black uppercase tracking-widest transition-all"
+                >
+                  {t('nav.login')}
+                </Link>
+              )}
+              <div className="flex items-center gap-1 ml-2">
+                <LanguageToggle />
+                <DirectionToggle />
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </div>

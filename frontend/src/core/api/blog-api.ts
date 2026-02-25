@@ -31,7 +31,13 @@ export const blogApi = baseApi.injectEndpoints({
     }),
     getBlogBySlug: builder.query<any, string>({
       query: (slug) => `/blogs/${slug}`,
-      providesTags: (result, error, slug) => [{ type: 'Blog', id: slug }],
+      providesTags: (result) => 
+        result 
+          ? [
+              { type: 'Blog' as const, id: result.id },
+              { type: 'Blog' as const, id: result.slug }
+            ] 
+          : ['Blog'],
     }),
     addComment: builder.mutation<any, { blogId: string; content: string }>({
       query: ({ blogId, content }) => ({
@@ -46,7 +52,7 @@ export const blogApi = baseApi.injectEndpoints({
         url: `/blogs/comments/${commentId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Blog'],
+      invalidatesTags: (result, error) => [{ type: 'Blog' }],
     }),
     toggleReaction: builder.mutation<any, { blogId: string; type: string }>({
       query: ({ blogId, type }) => ({
@@ -57,6 +63,7 @@ export const blogApi = baseApi.injectEndpoints({
       invalidatesTags: (result, error, { blogId }) => [{ type: 'Blog', id: blogId }],
     }),
   }),
+  overrideExisting: true,
 });
 
 export const {

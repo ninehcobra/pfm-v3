@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useGetBlogBySlugQuery } from '@/core/api/portfolio-api';
 import { 
+  useGetBlogBySlugQuery,
   useAddCommentMutation, 
   useDeleteCommentMutation, 
   useToggleReactionMutation 
@@ -14,7 +14,6 @@ import {
   ArrowLeft, 
   Calendar, 
   User, 
-  Clock, 
   Share2, 
   Eye, 
   MessageSquare, 
@@ -26,15 +25,47 @@ import {
   Send,
   Lock
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll } from 'framer-motion';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
+import { ReactionEffects } from '@/components/blog/reaction-effects';
+
+const ReactionButton = ({ reaction, blog, user, onToggle }: any) => {
+  const [isTriggered, setIsTriggered] = React.useState(false);
+  const count = blog.reactions?.filter((r: any) => r.type === reaction.type).length || 0;
+  const hasReacted = blog.reactions?.some((r: any) => r.type === reaction.type && r.userId === user?.id);
+
+  return (
+    <button
+      key={reaction.type}
+      onClick={() => {
+        onToggle(reaction.type);
+        setIsTriggered(true);
+        setTimeout(() => setIsTriggered(false), 100);
+      }}
+      className={`
+        group relative flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all
+        ${hasReacted 
+          ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20' 
+          : 'bg-white/5 border-white/5 hover:border-primary/30'}
+      `}
+    >
+      <ReactionEffects type={reaction.type} trigger={isTriggered} />
+      <reaction.icon className={`w-4 h-4 ${!hasReacted && reaction.color}`} />
+      <span className="text-[10px] font-black uppercase tracking-widest">{reaction.label}</span>
+      {count > 0 && (
+        <span className={`text-xs font-black ${hasReacted ? 'opacity-100' : 'opacity-50'}`}>{count}</span>
+      )}
+    </button>
+  );
+};
 
 export default function BlogDetailPage() {
   const { slug } = useParams();
   const router = useRouter();
+  const { scrollYProgress } = useScroll();
   const { locale, t } = useLayout();
   const { user } = useAuth();
   const { data: blog, isLoading, error } = useGetBlogBySlugQuery(slug as string);
@@ -43,28 +74,11 @@ export default function BlogDetailPage() {
   const [deleteComment] = useDeleteCommentMutation();
   const [toggleReaction] = useToggleReactionMutation();
 
-  const [commentContent, setCommentContent] = React.useState('');
-
-  const handleAddComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) {
-      toast.error('You must be logged in to comment');
-      return;
-    }
-    if (!commentContent.trim()) return;
-
-    try {
-      await addComment({ blogId: blog.id, content: commentContent }).unwrap();
-      setCommentContent('');
-      toast.success('Comment added successfully');
-    } catch (err) {
-      toast.error('Failed to add comment');
-    }
-  };
+  const [newComment, setNewComment] = React.useState('');
 
   const handleToggleReaction = async (type: string) => {
     if (!user) {
-      toast.error('You must be logged in to react');
+      toast.error(t('auth.login_required') || 'You must be logged in to react');
       return;
     }
     try {
@@ -74,54 +88,78 @@ export default function BlogDetailPage() {
     }
   };
 
+  const handleAddComment = async () => {
+    if (!user) {
+      toast.error(t('auth.login_required') || 'You must be logged in to comment');
+      return;
+    }
+    if (!newComment.trim()) return;
+
+    try {
+      await addComment({ blogId: blog.id, content: newComment }).unwrap();
+      setNewComment('');
+      toast.success('Comment added successfully');
+    } catch (err) {
+      toast.error('Failed to add comment');
+    }
+  };
+
   const handleDeleteComment = async (commentId: string) => {
     try {
       await deleteComment(commentId).unwrap();
-      toast.success('Comment deleted');
+      toast.success('Comment deleted successfully');
     } catch (err) {
       toast.error('Failed to delete comment');
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  const reactionsData = React.useMemo(() => [
+    { type: 'LIKE', icon: ThumbsUp, label: t('blog.reaction.cool') || 'Cool', color: 'hover:text-blue-500' },
+    { type: 'LOVE', icon: Heart, label: t('blog.reaction.love') || 'Love', color: 'hover:text-red-500' },
+    { type: 'WOW', icon: Zap, label: t('blog.reaction.wow') || 'Wow', color: 'hover:text-yellow-500' },
+    { type: 'BRAVO', icon: Award, label: t('blog.reaction.bravo') || 'Bravo', color: 'hover:text-green-500' },
+  ], [t]);
 
+  if (isLoading) return <BlogDetailSkeleton />;
   if (error || !blog) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
-        <h1 className="text-4xl font-black mb-4 uppercase tracking-tighter">Article Not Found</h1>
-        <p className="text-muted-foreground mb-8">The requested publication could not be retrieved from records.</p>
-        <Link 
-          href="/" 
-          className="px-8 py-3 bg-primary text-primary-foreground rounded-2xl font-black uppercase tracking-widest text-xs"
-        >
-          Return to Base
-        </Link>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+        <div className="text-center space-y-8 max-w-md p-12 rounded-[2.5rem] bg-white/[0.02] border border-white/5 backdrop-blur-3xl">
+          <div className="w-24 h-24 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-8 animate-pulse">
+            <ArrowLeft className="w-10 h-10 text-primary" />
+          </div>
+          <h2 className="text-3xl font-black italic uppercase tracking-tighter">
+            {t('blog.not_found') || 'Article Not Found'}
+          </h2>
+          <p className="text-muted-foreground text-sm font-medium leading-relaxed">
+            The data broadcast you are looking for has been lost in the digital void.
+          </p>
+          <button 
+            onClick={() => router.push('/blog')}
+            className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/20"
+          >
+            {t('blog.return') || 'Return to base'}
+          </button>
+        </div>
       </div>
     );
   }
 
   const translation = blog.translations?.find((t: any) => t.language?.code === locale) || blog.translations?.[0] || {};
-  const date = new Date(blog.createdAt).toLocaleDateString(locale, {
+  const date = blog.createdAt ? new Date(blog.createdAt).toLocaleDateString(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
-  });
-
-  const reactionsData = [
-    { type: 'LIKE', icon: ThumbsUp, label: 'Cool', color: 'hover:text-blue-500' },
-    { type: 'LOVE', icon: Heart, label: 'Love', color: 'hover:text-red-500' },
-    { type: 'WOW', icon: Zap, label: 'Wow', color: 'hover:text-yellow-500' },
-    { type: 'BRAVO', icon: Award, label: 'Bravo', color: 'hover:text-green-500' },
-  ];
+  }) : '';
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-32">
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
+      {/* Scroll indicator */}
+      <motion.div 
+        className="fixed top-0 left-0 right-0 h-1 bg-primary origin-left z-50"
+        style={{ scaleX: scrollYProgress }}
+      />
+
       {/* Article Header */}
       <header className="relative h-[60vh] w-full overflow-hidden">
         {blog.thumbnail ? (
@@ -201,29 +239,15 @@ export default function BlogDetailPage() {
              {t('blog.how_was_it') || 'Transmission Feedback'}
           </h3>
           <div className="flex flex-wrap gap-4">
-             {reactionsData.map((reaction) => {
-               const count = blog.reactions?.filter((r: any) => r.type === reaction.type).length || 0;
-               const hasReacted = blog.reactions?.some((r: any) => r.type === reaction.type && r.userId === user?.id);
-               
-               return (
-                 <button
-                   key={reaction.type}
-                   onClick={() => handleToggleReaction(reaction.type)}
-                   className={`
-                     group flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all
-                     ${hasReacted 
-                       ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20' 
-                       : 'bg-white/5 border-white/5 hover:border-primary/30'}
-                   `}
-                 >
-                   <reaction.icon className={`w-4 h-4 ${!hasReacted && reaction.color}`} />
-                   <span className="text-[10px] font-black uppercase tracking-widest">{reaction.label}</span>
-                   {count > 0 && (
-                     <span className={`text-xs font-black ${hasReacted ? 'opacity-100' : 'opacity-50'}`}>{count}</span>
-                   )}
-                 </button>
-               );
-             })}
+             {reactionsData.map((reaction) => (
+               <ReactionButton 
+                 key={reaction.type}
+                 reaction={reaction}
+                 blog={blog}
+                 user={user}
+                 onToggle={handleToggleReaction}
+               />
+             ))}
           </div>
         </section>
 
@@ -251,36 +275,36 @@ export default function BlogDetailPage() {
                   </div>
                 </div>
                 <textarea
-                  value={commentContent}
-                  onChange={(e) => setCommentContent(e.target.value)}
-                  placeholder={t('blog.comment_placeholder') || "Type your transmission here..."}
-                  className="w-full bg-white/5 border border-white/5 rounded-2xl p-4 text-sm focus:outline-none focus:border-primary/50 transition-all min-h-[120px] resize-none"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder={t('blog.comment_placeholder') || 'Type your transmission here...'}
+                  className="w-full bg-transparent border-none focus:ring-0 text-sm text-foreground/80 placeholder:text-white/10 resize-none min-h-[120px] pb-4"
                 />
                 <div className="flex justify-end">
                   <button
-                    type="submit"
-                    disabled={isAddingComment || !commentContent.trim()}
-                    className="flex items-center gap-3 px-8 py-3 bg-primary text-primary-foreground rounded-2xl font-black uppercase tracking-widest text-[10px] disabled:opacity-50 hover:shadow-xl hover:shadow-primary/20 transition-all"
+                    onClick={handleAddComment}
+                    disabled={isAddingComment || !newComment.trim()}
+                    className="flex items-center gap-3 px-8 py-3 bg-primary text-primary-foreground rounded-2xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 shadow-lg shadow-primary/20"
                   >
-                    {isAddingComment ? 'Sending...' : 'Post Comment'}
+                    {isAddingComment ? 'Processing...' : (t('blog.post_comment') || 'Post Comment')}
                     <Send className="w-3 h-3" />
                   </button>
                 </div>
               </form>
             ) : (
-              <div className="flex flex-col items-center justify-center py-10 space-y-6 text-center">
-                <div className="p-4 rounded-full bg-white/5">
-                  <Lock className="w-8 h-8 text-muted-foreground opacity-50" />
+              <div className="p-12 rounded-[2.5rem] bg-white/[0.02] border border-dashed border-white/10 flex flex-col items-center gap-6 text-center">
+                <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center">
+                  <Lock className="w-6 h-6 text-muted-foreground" />
                 </div>
-                <div className="space-y-2">
-                  <p className="font-black uppercase tracking-widest text-sm">Authentication Required</p>
-                  <p className="text-xs text-muted-foreground">Log in to join the conversation and share your insights.</p>
+                <div className="space-y-1">
+                  <p className="text-xs font-black uppercase tracking-[0.2em]">{t('auth.login_required') || 'Authentication Required'}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase opacity-50">Secure connection needed to comment</p>
                 </div>
                 <Link 
                   href="/login"
                   className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all"
                 >
-                  Go to Login
+                  {t('auth.go_to_login') || 'Go to Login'}
                 </Link>
               </div>
             )}
@@ -329,7 +353,7 @@ export default function BlogDetailPage() {
 
             {(!blog.comments || blog.comments.length === 0) && (
               <div className="py-20 text-center space-y-4">
-                 <p className="text-muted-foreground text-sm italic">The void is silent. Be the first to speak.</p>
+                 <p className="text-muted-foreground text-sm italic">{t('blog.no_comments') || 'The void is silent. Be the first to speak.'}</p>
               </div>
             )}
           </div>

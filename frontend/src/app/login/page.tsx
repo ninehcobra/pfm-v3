@@ -7,14 +7,29 @@ import { ShinyText } from '@/components/ui/shiny-text';
 import { Magnet } from '@/components/ui/magnet';
 import { BlurText } from '@/components/ui/blur-text';
 import { Lock, Mail, Loader2, Rocket, ArrowLeft, ShieldCheck, Zap } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, user, isLoading } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Redirect if already logged in
+  React.useEffect(() => {
+    if (!isLoading && user) {
+      if (user.roleName === 'SUPERADMIN') {
+         // Superadmin might want to choose, but typically redirected to dashboard or home
+         // The AuthProvider already handles the Shift+A and login success modal
+         router.push('/');
+      } else {
+        router.push('/');
+      }
+    }
+  }, [user, isLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,12 +37,21 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await login({ email, password });
+      // Navigation is handled inside login() or by the useEffect above
     } catch (err: any) {
       setError(err.response?.data?.message || 'Access denied. Verify your credentials.');
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#050505] p-6 relative overflow-hidden">

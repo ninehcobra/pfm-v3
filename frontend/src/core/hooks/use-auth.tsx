@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import api from '@/core/api/api-client';
 import { toast } from 'sonner';
 
+import { RoleSelectionModal } from '@/components/auth/role-selection-modal';
+
 interface User {
   id: string;
   email: string;
@@ -15,7 +17,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (credentials: any) => Promise<void>;
+  login: (credentials: any) => Promise<User>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -25,6 +27,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -37,6 +40,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
     setIsLoading(false);
+
+    // Global Key Listener for Shift + A
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.shiftKey && e.key === 'A') {
+        const currentUserStr = localStorage.getItem('user');
+        if (currentUserStr) {
+          const currentUser = JSON.parse(currentUserStr);
+          if (currentUser.roleName === 'SUPERADMIN') {
+            e.preventDefault();
+            setIsRoleModalOpen(true);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const login = async (credentials: any) => {
@@ -49,10 +69,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(data.user);
       
       if (data.user.roleName === 'SUPERADMIN') {
-        router.push('/admin');
+        setIsRoleModalOpen(true);
       } else {
         router.push('/');
       }
+      return data.user;
     } catch (err: any) {
       console.error('Login failed:', err);
       throw err;
@@ -70,6 +91,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <AuthContext.Provider value={{ user, login, logout, isLoading }}>
       {children}
+      <RoleSelectionModal 
+        isOpen={isRoleModalOpen} 
+        onClose={() => setIsRoleModalOpen(false)} 
+      />
     </AuthContext.Provider>
   );
 };
