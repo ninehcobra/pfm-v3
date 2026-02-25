@@ -43,11 +43,13 @@ const baseQueryWithReauth: BaseQueryFn<
       } else {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
         window.location.href = '/login';
       }
     } else {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
       window.location.href = '/login';
     }
   }
@@ -71,6 +73,6 @@ const baseQueryWithReauth: BaseQueryFn<
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Project', 'Blog', 'UIContent', 'Language', 'Experience', 'SystemLog', 'Portfolio', 'Dashboard', 'User'],
+  tagTypes: ['Project', 'Blog', 'UIContent', 'Language', 'Experience', 'SystemLog', 'Portfolio', 'Dashboard', 'User', 'Playground'],
   endpoints: () => ({}),
 });

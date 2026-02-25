@@ -32,6 +32,8 @@ import { DashboardController } from './presentation/controllers/dashboard.contro
 import { MaintenanceController } from './presentation/controllers/maintenance.controller';
 import { DashboardService } from './application/use-cases/dashboard.service';
 import { MaintenanceService } from './application/use-cases/maintenance.service';
+import { PlaygroundController } from './presentation/controllers/playground.controller';
+import { PlaygroundService } from './application/use-cases/playground.service';
 
 @Module({
   imports: [PrismaModule, AuthModule, UserPersistenceModule, LoggerModule],
@@ -49,6 +51,7 @@ import { MaintenanceService } from './application/use-cases/maintenance.service'
     LogController,
     DashboardController,
     MaintenanceController,
+    PlaygroundController,
   ],
   providers: [
     AppService,
@@ -69,6 +72,7 @@ import { MaintenanceService } from './application/use-cases/maintenance.service'
     LogManagementService,
     DashboardService,
     MaintenanceService,
+    PlaygroundService,
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,

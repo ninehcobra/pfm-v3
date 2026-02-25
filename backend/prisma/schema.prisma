@@ -20,6 +20,7 @@ model User {
   logs          SystemLog[]
   comments      Comment[]
   reactions     Reaction[]
+  scores        GameScore[]
   refreshToken  String?
   
   roleId        String
@@ -251,4 +252,18 @@ model Subscriber {
 
   @@index([createdAt])
   @@index([isActive])
+}
+
+model GameScore {
+  id        String   @id @default(uuid())
+  gameKey   String   // e.g., "2048"
+  score     Int
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  playerName String?  // For guest players or anonymous
+  createdAt DateTime @default(now())
+
+  @@index([gameKey])
+  @@index([score(sort: Desc)])
+  @@index([createdAt])
 }

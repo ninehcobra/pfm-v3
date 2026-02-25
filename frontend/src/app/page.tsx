@@ -71,6 +71,7 @@ export default function HomePage() {
               <a href="#projects" className="hover:text-primary transition-colors">{t('nav.projects')}</a>
               <a href="#experience" className="hover:text-primary transition-colors">{t('nav.experience')}</a>
               <a href="#blog" className="hover:text-primary transition-colors">{t('nav.blog')}</a>
+              <Link href="/playground" className="hover:text-primary transition-colors">Playground</Link>
             </div>
             <div className="flex items-center gap-3 pl-4 border-l border-border">
               {user ? (
@@ -174,11 +175,11 @@ export default function HomePage() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {projects.map((p, i) => {
+            {projects.map((p) => {
               const CardContent = (
                 <SpotlightCard key={p.id} className="p-0 overflow-hidden group h-full cursor-pointer">
                   <div className="h-64 bg-muted relative">
-                    <img src={p.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100" />
+                    <img alt={p.title} src={p.image} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-105 group-hover:scale-100" />
                   </div>
                   <div className="p-8">
                     <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">{p.title}</h3>
@@ -205,7 +206,7 @@ export default function HomePage() {
         <section id="experience" className="py-32">
           <h2 className="text-4xl font-black mb-16 text-center">{t('nav.experience')}</h2>
           <div className="max-w-4xl mx-auto space-y-12">
-            {experience.map((exp, i) => (
+            {experience.map((exp) => (
               <div key={exp.id} className="relative pl-8 border-l-2 border-primary/20 hover:border-primary transition-colors py-4">
                 <div className="absolute left-[-9px] top-6 w-4 h-4 rounded-full bg-background border-2 border-primary" />
                 <span className="text-xs font-bold text-primary uppercase tracking-widest">{exp.period}</span>
@@ -257,9 +258,9 @@ export default function HomePage() {
                 No articles published yet.
               </div>
             ) : (
-              blogPosts.map((post: any, i: number) => {
-                const translation = post.translations?.[0] || {};
-                const date = new Date(post.createdAt).toLocaleDateString(locale, {
+              blogPosts.slice(0, 3).map((blog: any, i: number) => {
+                const translation = blog.translations?.[0] || {};
+                const date = new Date(blog.createdAt).toLocaleDateString(locale, {
                   year: 'numeric',
                   month: 'short',
                   day: 'numeric'
@@ -267,14 +268,14 @@ export default function HomePage() {
 
                 return (
                   <Link 
-                    key={post.id} 
-                    href={`/blog/${post.slug}`} 
+                    key={blog.id} 
+                    href={`/blog/${blog.slug}`} 
                     className="flex items-center justify-between p-8 rounded-2xl border border-transparent hover:border-border hover:bg-muted/50 transition-all group"
                   >
                     <div className="flex items-center gap-8">
                       <span className="text-muted-foreground font-mono text-xs">{(i + 1).toString().padStart(2, '0')}</span>
                       <h3 className="text-xl md:text-2xl font-bold group-hover:text-primary transition-colors">
-                        {translation.title || post.title}
+                        {translation.title || blog.title}
                       </h3>
                     </div>
                     <div className="hidden md:flex items-center gap-4 text-muted-foreground text-sm uppercase font-bold tracking-widest">

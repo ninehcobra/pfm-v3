@@ -54,7 +54,8 @@ export default function ClientHomePage() {
 
           <div className="flex items-center gap-6">
             <div className="hidden md:flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-white/40">
-              <Link href="/blog" className="hover:text-white transition-colors">{t('nav.blog')}</Link>
+               <Link href="/blog" className="hover:text-white transition-colors">{t('nav.blog')}</Link>
+              <Link href="/playground" className="hover:text-white transition-colors">Playground</Link>
               <Link href="/profile" className="hover:text-white transition-colors">{t('nav.profile')}</Link>
             </div>
             <div className="h-8 w-[1px] bg-white/10 mx-2" />
@@ -169,8 +170,8 @@ export default function ClientHomePage() {
                 No signal detected from the archive.
               </div>
             ) : (
-              blogs.slice(0, 3).map((blog: any, i: number) => {
-                const trans = blog.translations?.[0] || {};
+              blogs.slice(0, 3).map((blog, i: number) => {
+                const trans: any = blog.translations?.[0] || {};
                 return (
                   <motion.div
                     key={blog.id}
@@ -182,7 +183,7 @@ export default function ClientHomePage() {
                       <SpotlightCard className="p-0 overflow-hidden h-full flex flex-col border-white/5 group-hover:border-primary/50 transition-all">
                         <div className="h-64 relative bg-white/5">
                           {blog.thumbnail && (
-                            <img src={blog.thumbnail} alt={trans.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+                            <img alt={trans.title} src={blog.thumbnail} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                           )}
                           <div className="absolute top-6 left-6 px-4 py-1.5 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full text-[8px] font-black uppercase tracking-widest">
                             {new Date(blog.createdAt).toLocaleDateString()}
