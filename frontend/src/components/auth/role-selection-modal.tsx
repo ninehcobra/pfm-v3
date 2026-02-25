@@ -62,7 +62,7 @@ export function RoleSelectionModal({ isOpen, onClose }: RoleSelectionModalProps)
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <button
-                  onClick={() => handleNavigate('/profile')}
+                  onClick={() => handleNavigate('/home')}
                   className="group relative p-8 bg-white/[0.02] border border-white/5 hover:border-primary/30 rounded-[2rem] text-left transition-all hover:bg-white/[0.05] overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />

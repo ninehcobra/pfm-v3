@@ -38,13 +38,50 @@ export interface DashboardStats {
   }[];
 }
 
+interface MaintenanceResponse {
+  message: string;
+}
+
 export const dashboardApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getDashboardStats: builder.query<DashboardStats, void>({
-      query: () => '/dashboard/stats',
+      query: () => '/admin/dashboard/stats',
       providesTags: ['Dashboard' as any],
+    }),
+    clearLogs: builder.mutation<MaintenanceResponse, void>({
+      query: () => ({
+        url: '/maintenance/clear-logs',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Dashboard' as any],
+    }),
+    seedDatabase: builder.mutation<MaintenanceResponse, void>({
+      query: () => ({
+        url: '/maintenance/seed',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Dashboard' as any, 'UIContent' as any, 'Language' as any],
+    }),
+    resetSystem: builder.mutation<MaintenanceResponse, void>({
+      query: () => ({
+        url: '/maintenance/reset-all',
+        method: 'POST',
+      }),
+      invalidatesTags: [
+        'Dashboard' as any, 
+        'UIContent' as any, 
+        'Language' as any,
+        'Project' as any,
+        'Experience' as any,
+        'Blog' as any
+      ],
     }),
   }),
 });
 
-export const { useGetDashboardStatsQuery } = dashboardApi;
+export const { 
+  useGetDashboardStatsQuery,
+  useClearLogsMutation,
+  useSeedDatabaseMutation,
+  useResetSystemMutation,
+} = dashboardApi;

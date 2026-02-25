@@ -9,15 +9,28 @@ import {
   MessageSquare, 
   ArrowUpRight, 
   Activity,
-  Globe,
   Database,
   Briefcase,
-  FileText
+  FileText,
+  Zap,
+  Loader2,
+  ShieldAlert,
+  RefreshCw,
+  Bomb
 } from 'lucide-react';
-import { useGetDashboardStatsQuery } from '@/core/api/dashboard-api';
+import { 
+  useGetDashboardStatsQuery, 
+  useClearLogsMutation, 
+  useSeedDatabaseMutation,
+  useResetSystemMutation
+} from '@/core/api/dashboard-api';
+import { toast } from 'sonner';
 
 export default function DashboardPage() {
   const { data, isLoading, error } = useGetDashboardStatsQuery();
+  const [clearLogs, { isLoading: isClearingLogs }] = useClearLogsMutation();
+  const [seedDatabase, { isLoading: isSeeding }] = useSeedDatabaseMutation();
+  const [resetSystem, { isLoading: isResetting }] = useResetSystemMutation();
 
   if (isLoading) return <div className="p-8">Loading dashboard metrics...</div>;
   if (error) return <div className="p-8 text-red-500">Error loading dashboard</div>;
@@ -86,6 +99,97 @@ export default function DashboardPage() {
               {(!data?.topBlogs || data.topBlogs.length === 0) && (
                 <p className="text-sm text-muted-foreground italic text-center py-4">No blog data yet</p>
               )}
+            </div>
+          </div>
+
+          {/* Maintenance Protocols */}
+          <div className="p-8 rounded-3xl bg-white/5 border border-white/10 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/10 transition-colors" />
+            <div className="relative">
+              <h3 className="text-xl font-black tracking-tight flex items-center gap-3 mb-8">
+                <Zap className="w-5 h-5 text-primary" />
+                Maintenance Protocols
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button
+                  onClick={async () => {
+                    const confirm = window.confirm('Clear all system logs? This action cannot be undone.');
+                    if (!confirm) return;
+                    try {
+                      const res = await clearLogs().unwrap();
+                      toast.success(res.message || 'Logs cleared');
+                    } catch (err: any) {
+                      toast.error(err?.data?.message || 'Failed to clear logs');
+                    }
+                  }}
+                  disabled={isClearingLogs}
+                  className="flex items-center justify-between p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-red-500/30 hover:bg-red-500/5 transition-all text-left group"
+                >
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground block mb-2">Logs purging</span>
+                    <span className="text-sm font-bold uppercase tracking-widest">Clear Records</span>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-muted-foreground group-hover:bg-red-500 group-hover:text-white transition-all">
+                    {isClearingLogs ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldAlert className="w-5 h-5" />}
+                  </div>
+                </button>
+
+                <button
+                  onClick={async () => {
+                    const confirm = window.confirm('Initiate database seed? This will restore default content and keys.');
+                    if (!confirm) return;
+                    try {
+                      toast.loading('Initiating system seed...');
+                      const res = await seedDatabase().unwrap();
+                      toast.dismiss();
+                      toast.success(res.message || 'Database seeded');
+                    } catch (err: any) {
+                      toast.dismiss();
+                      toast.error(err?.data?.message || 'Seed failed');
+                    }
+                  }}
+                  disabled={isSeeding}
+                  className="flex items-center justify-between p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-primary/30 hover:bg-primary/5 transition-all text-left group"
+                >
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground block mb-2">System Restore</span>
+                    <span className="text-sm font-bold uppercase tracking-widest">Re-seed Data</span>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-white transition-all">
+                    {isSeeding ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
+                  </div>
+                </button>
+                <button
+                  onClick={async () => {
+                    const confirm = window.confirm('DANGEROUS: Clear ALL data (Blogs, Projects, Experiences, etc.) and Reset?');
+                    if (!confirm) return;
+                    const doubleConfirm = window.confirm('Are you absolutely sure? This will nuclear reset your content but keep users.');
+                    if (!doubleConfirm) return;
+                    try {
+                      toast.loading('Performing nuclear reset and re-seeding...');
+                      const res = await resetSystem().unwrap();
+                      toast.dismiss();
+                      toast.success(res.message || 'System nuclear reset complete');
+                    } catch (err: any) {
+                      toast.dismiss();
+                      toast.error(err?.data?.message || 'Nuclear reset failed');
+                    }
+                  }}
+                  disabled={isResetting}
+                  className="flex items-center justify-between p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-orange-500/30 hover:bg-orange-500/5 transition-all text-left group sm:col-span-2"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-muted-foreground group-hover:bg-orange-500 group-hover:text-white transition-all">
+                      {isResetting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Bomb className="w-6 h-6" />}
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground block mb-1">Nuclear Reset</span>
+                      <span className="text-sm font-bold uppercase tracking-widest">Reset System & Data</span>
+                    </div>
+                  </div>
+                  <ShieldAlert className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
+              </div>
             </div>
           </div>
 

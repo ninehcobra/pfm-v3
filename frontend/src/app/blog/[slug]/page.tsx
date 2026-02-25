@@ -62,6 +62,30 @@ const ReactionButton = ({ reaction, blog, user, onToggle }: any) => {
   );
 };
 
+const BlogDetailSkeleton = () => (
+  <div className="min-h-screen bg-background pt-32 pb-20 px-8 md:px-20">
+    <div className="max-w-4xl mx-auto space-y-12">
+      <div className="space-y-6">
+        <div className="w-24 h-4 bg-white/5 rounded-full animate-pulse" />
+        <div className="space-y-3">
+          <div className="w-full h-12 bg-white/5 rounded-2xl animate-pulse" />
+          <div className="w-3/4 h-12 bg-white/5 rounded-2xl animate-pulse" />
+        </div>
+        <div className="flex gap-4">
+          <div className="w-32 h-4 bg-white/5 rounded-full animate-pulse" />
+          <div className="w-32 h-4 bg-white/5 rounded-full animate-pulse" />
+        </div>
+      </div>
+      <div className="aspect-video w-full bg-white/5 rounded-[40px] animate-pulse" />
+      <div className="space-y-4 pt-8">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+          <div key={i} className={`h-4 bg-white/5 rounded-full animate-pulse ${i % 3 === 0 ? 'w-2/3' : 'w-full'}`} />
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
 export default function BlogDetailPage() {
   const { slug } = useParams();
   const router = useRouter();
@@ -83,7 +107,7 @@ export default function BlogDetailPage() {
     }
     try {
       await toggleReaction({ blogId: blog.id, type }).unwrap();
-    } catch (err) {
+    } catch {
       toast.error('Failed to update reaction');
     }
   };
@@ -99,7 +123,7 @@ export default function BlogDetailPage() {
       await addComment({ blogId: blog.id, content: newComment }).unwrap();
       setNewComment('');
       toast.success('Comment added successfully');
-    } catch (err) {
+    } catch {
       toast.error('Failed to add comment');
     }
   };
@@ -108,7 +132,7 @@ export default function BlogDetailPage() {
     try {
       await deleteComment(commentId).unwrap();
       toast.success('Comment deleted successfully');
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete comment');
     }
   };

@@ -17,7 +17,7 @@ import {
   useGetUIContentQuery, 
   useUpdateUIContentMutation, 
   useCreateUIKeyMutation, 
-  useGetLanguagesQuery 
+  useGetAdminLanguagesQuery 
 } from '@/core/api/config-api';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/ui/image-upload';
@@ -38,7 +38,7 @@ interface Language {
 
 export default function ConfigAdminPage() {
   const { data: content = [], isLoading: isContentLoading } = useGetUIContentQuery();
-  const { data: languages = [], isLoading: isLanguagesLoading } = useGetLanguagesQuery();
+  const { data: languages = [], isLoading: isLanguagesLoading } = useGetAdminLanguagesQuery();
   const [updateUIContent] = useUpdateUIContentMutation();
   const [createUIKey] = useCreateUIKeyMutation();
 
@@ -265,7 +265,7 @@ export default function ConfigAdminPage() {
                       placeholder="e.g. hero.cta_button"
                       className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-14 pr-6 outline-none focus:border-primary/50 font-mono text-sm"
                     />
-                    <p className="text-[9px] text-muted-foreground mt-2 ml-2 italic">* Use ".image" in key to enable image upload UI.</p>
+                    <p className="text-[9px] text-muted-foreground mt-2 ml-2 italic">* Use &quot;.image&quot; in key to enable image upload UI.</p>
                   </div>
                 </div>
 

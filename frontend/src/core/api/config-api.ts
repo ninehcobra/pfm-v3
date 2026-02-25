@@ -22,7 +22,7 @@ export const configApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['UIContent'],
     }),
-    getLanguages: builder.query<any[], void>({
+    getAdminLanguages: builder.query<any[], void>({
       query: () => '/admin/languages',
       providesTags: ['Language'],
     }),
@@ -33,5 +33,5 @@ export const {
   useGetUIContentQuery,
   useUpdateUIContentMutation,
   useCreateUIKeyMutation,
-  useGetLanguagesQuery,
+  useGetAdminLanguagesQuery,
 } = configApi;

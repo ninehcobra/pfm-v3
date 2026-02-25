@@ -29,7 +29,9 @@ import { LogManagementService } from './application/use-cases/log.management.ser
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggingInterceptor } from './presentation/interceptors/logging.interceptor';
 import { DashboardController } from './presentation/controllers/dashboard.controller';
+import { MaintenanceController } from './presentation/controllers/maintenance.controller';
 import { DashboardService } from './application/use-cases/dashboard.service';
+import { MaintenanceService } from './application/use-cases/maintenance.service';
 
 @Module({
   imports: [PrismaModule, AuthModule, UserPersistenceModule, LoggerModule],
@@ -46,6 +48,7 @@ import { DashboardService } from './application/use-cases/dashboard.service';
     ProfileController,
     LogController,
     DashboardController,
+    MaintenanceController,
   ],
   providers: [
     AppService,
@@ -65,6 +68,7 @@ import { DashboardService } from './application/use-cases/dashboard.service';
     },
     LogManagementService,
     DashboardService,
+    MaintenanceService,
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,

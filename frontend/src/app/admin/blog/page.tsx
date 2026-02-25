@@ -25,7 +25,7 @@ import {
   useUpdateBlogMutation, 
   useDeleteBlogMutation 
 } from '@/core/api/blog-api';
-import { useGetLanguagesQuery } from '@/core/api/config-api';
+import { useGetAdminLanguagesQuery } from '@/core/api/config-api';
 import { useUploadImageMutation } from '@/core/api/media-api';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -51,7 +51,7 @@ interface Blog {
 export default function BlogAdminPage() {
   const { user } = useAuth();
   const { data: blogs = [], isLoading: isBlogsLoading } = useGetBlogsQuery();
-  const { data: languages = [], isLoading: isLanguagesLoading } = useGetLanguagesQuery();
+  const { data: languages = [], isLoading: isLanguagesLoading } = useGetAdminLanguagesQuery();
   const [createBlog] = useCreateBlogMutation();
   const [updateBlog] = useUpdateBlogMutation();
   const [deleteBlog] = useDeleteBlogMutation();

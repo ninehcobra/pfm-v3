@@ -24,6 +24,13 @@ export default function HomePage() {
   const { data: blogPosts = [], isLoading: isBlogsLoading } = useGetPortfolioBlogPostsQuery({ locale: locale || 'en' });
   const router = useRouter();
 
+  // Redirect to client home if logged in
+  React.useEffect(() => {
+    if (user) {
+      router.push('/home');
+    }
+  }, [user, router]);
+
   const milestones = [
     { id: 'hero', label: t('nav.home') || 'Home' },
     { id: 'about', label: t('nav.about') },

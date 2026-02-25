@@ -22,7 +22,7 @@ import {
   useUpdateProjectMutation, 
   useDeleteProjectMutation 
 } from '@/core/api/project-api';
-import { useGetLanguagesQuery } from '@/core/api/config-api';
+import { useGetAdminLanguagesQuery } from '@/core/api/config-api';
 import { toast } from 'sonner';
 
 interface Language {
@@ -46,7 +46,7 @@ interface Project {
 
 export default function ProjectsAdminPage() {
   const { data: projects = [], isLoading: isProjectsLoading } = useGetProjectsQuery();
-  const { data: languages = [], isLoading: isLanguagesLoading } = useGetLanguagesQuery();
+  const { data: languages = [], isLoading: isLanguagesLoading } = useGetAdminLanguagesQuery();
   const [createProject] = useCreateProjectMutation();
   const [updateProject] = useUpdateProjectMutation();
   const [deleteProject] = useDeleteProjectMutation();

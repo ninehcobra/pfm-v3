@@ -19,7 +19,7 @@ import {
   useUpdateExperienceMutation, 
   useDeleteExperienceMutation 
 } from '@/core/api/experience-api';
-import { useGetLanguagesQuery } from '@/core/api/config-api';
+import { useGetAdminLanguagesQuery } from '@/core/api/config-api';
 import { toast } from 'sonner';
 
 interface Language {
@@ -41,7 +41,7 @@ interface Experience {
 
 export default function ExperienceAdminPage() {
   const { data: experiences = [], isLoading: isExpLoading } = useGetExperiencesQuery();
-  const { data: languages = [], isLoading: isLangLoading } = useGetLanguagesQuery();
+  const { data: languages = [], isLoading: isLangLoading } = useGetAdminLanguagesQuery();
   const [createExperience] = useCreateExperienceMutation();
   const [updateExperience] = useUpdateExperienceMutation();
   const [deleteExperience] = useDeleteExperienceMutation();

@@ -21,7 +21,7 @@ export default function LoginPage() {
   // Redirect if already logged in
   React.useEffect(() => {
     if (!isLoading && user) {
-      router.push('/');
+      router.push('/home');
     }
   }, [user, isLoading, router]);
 
